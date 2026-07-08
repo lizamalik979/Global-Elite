@@ -1,26 +1,71 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-inter: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand palette (extracted from Figma) */
+  --color-navy: #16265c;
+  --color-navy-deep: #081436;
+  --color-slate: #64748b;
+  --color-slate-light: #94a3b8;
+  --color-slate-lighter: #cbd5e1;
+
+  --color-purple-50: #f4ecfa;
+  --color-purple-100: #ece2f4;
+  --color-purple-500: #8e4fa0;
+  --color-purple-600: #7a3d94;
+
+  --color-gold: #e5a93a;
+  --color-gold-dark: #c8871f;
+
+  --color-ink: #0f172a;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f4fb;
+  --foreground: #16265c;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--color-purple-100);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Shared brand gradients */
+.gradient-cta {
+  /* orange -> magenta/purple (Get Started, primary pills) */
+  background-image: linear-gradient(
+    100deg,
+    #f0a63c 0%,
+    #e07a54 42%,
+    #b3529a 100%
+  );
+}
+
+.gradient-quote {
+  /* purple pill (Get A Quote) */
+  background-image: linear-gradient(120deg, #9a5bb0 0%, #7a3d94 100%);
+}
+
+.gradient-hero {
+  background-image: radial-gradient(
+      120% 90% at 50% 120%,
+      rgba(197, 108, 173, 0.55) 0%,
+      rgba(120, 61, 148, 0) 55%
+    ),
+    linear-gradient(180deg, #1b1f5a 0%, #3a2d73 45%, #7d4a93 78%, #b7659f 100%);
+}
+
+.text-gradient-gold {
+  background-image: linear-gradient(90deg, #f0b64a 0%, #e0912f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
