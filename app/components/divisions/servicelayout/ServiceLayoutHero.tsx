@@ -86,19 +86,14 @@ export default function ServiceLayoutHero({ config }: { config: ServiceConfig })
               <BadgeIcon width={15} height={15} style={{ color: "#E5A93A" }} />
               {config.badge}
             </div>
-            <h1 style={{ fontFamily: "var(--font-jakarta), sans-serif", fontSize: 46, lineHeight: 1.18, fontWeight: 800, letterSpacing: "-.02em", color: "#fff", marginTop: 18, maxWidth: 560 }}>
+            <h1 style={{ fontFamily: "var(--font-jakarta), sans-serif", fontSize: "clamp(30px, 7.5vw, 46px)", lineHeight: 1.18, fontWeight: 800, letterSpacing: "-.02em", color: "#fff", marginTop: 18, maxWidth: 560, overflowWrap: "break-word" }}>
               {config.titleLead}{" "}
               <span
                 style={{
-                  fontStyle: "italic",
                   background: "linear-gradient(120deg,#F2C66A,#E89B3A)",
                   WebkitBackgroundClip: "text",
                   backgroundClip: "text",
                   color: "transparent",
-                  // italic glyphs slant past their box; padding stops the
-                  // gradient-clip from cropping the last character.
-                  paddingRight: "0.12em",
-                  marginRight: "-0.12em",
                 }}
               >
                 {config.titleAccent}

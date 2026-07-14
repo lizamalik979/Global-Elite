@@ -110,25 +110,23 @@ export default function ServiceHero() {
             <h1
               style={{
                 fontFamily: "var(--font-jakarta), sans-serif",
-                fontSize: 46,
+                fontSize: "clamp(30px, 7.5vw, 46px)",
                 lineHeight: 1.1,
                 fontWeight: 800,
                 letterSpacing: "-.02em",
                 color: "#fff",
                 marginTop: 18,
                 maxWidth: 560,
+                overflowWrap: "break-word",
               }}
             >
               Degree Certificate{" "}
               <span
                 style={{
-                  fontStyle: "italic",
                   background: "linear-gradient(120deg,#F2C66A,#E89B3A)",
                   WebkitBackgroundClip: "text",
                   backgroundClip: "text",
                   color: "transparent",
-                  paddingRight: "0.12em",
-                  marginRight: "-0.12em",
                 }}
               >
                 Apostille
