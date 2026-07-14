@@ -1,0 +1,128 @@
+/* Shared "service page" shell styling, generalised from the Documentation
+   service page so every division page shares the same look:
+   breadcrumb hero + lead form + sticky TOC + sectioned article body. */
+
+.btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  color: #16265c;
+  padding: 12px 13px;
+  border: 1.5px solid #ece2f4;
+  border-radius: 11px;
+  background: #fff;
+}
+.input:focus {
+  outline: none;
+  border-color: #8e4fa0;
+  box-shadow: 0 0 0 4px rgba(142, 79, 160, 0.14);
+}
+
+.heroChip {
+  transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+}
+.heroChip:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(229, 169, 58, 0.5) !important;
+}
+
+.toc {
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.card:hover {
+  transform: translateY(-5px);
+  border-color: #cbb6dc !important;
+  box-shadow: 0 20px 40px -22px rgba(22, 38, 92, 0.35) !important;
+}
+
+/* Layout */
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 56px;
+  align-items: center;
+  margin-top: 36px;
+}
+
+.heroChips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 30px;
+  max-width: 560px;
+}
+
+.bodyGrid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 25% 75%;
+  gap: 38px;
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  /* clear the sticky global header (utility bar 79px + nav strip 54px) + gap */
+  top: 149px;
+  align-self: start;
+  padding-top: 44px;
+}
+
+/* Section block grids */
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 22px;
+}
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 22px;
+}
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 24px;
+}
+
+@media (max-width: 1000px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .bodyGrid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .sidebar {
+    position: static;
+    padding-top: 24px;
+  }
+}
+
+@media (max-width: 720px) {
+  .heroChips {
+    grid-template-columns: 1fr;
+  }
+  .grid2,
+  .grid3,
+  .statGrid {
+    grid-template-columns: 1fr;
+  }
+}

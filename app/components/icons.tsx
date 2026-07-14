@@ -18,6 +18,12 @@ export const ChevronDown = (p: IconProps) => (
   </svg>
 );
 
+export const ChevronRight = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="m9 18 6-6-6-6" />
+  </svg>
+);
+
 export const ArrowRight = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M5 12h14" />

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 /* ---------- inline lucide-style icons ---------- */
 
@@ -94,18 +95,19 @@ function LockIcon({ className }: { className?: string }) {
 
 /* ---------- data ---------- */
 
-const services = [
-  "Apostille Services",
-  "Embassy Attestation",
-  "Certified Translation",
-  "Price Calculator",
+// The five business divisions of Global Elite (OPC) Pvt Ltd.
+const divisions: { label: string; href: string }[] = [
+  { label: "Travel & Tourism", href: "/travel" },
+  { label: "Documentation Solutions", href: "/services" },
+  { label: "Marketing & AI", href: "/marketing" },
+  { label: "Education & Career", href: "/education" },
+  { label: "AI & Technology", href: "/technology" },
 ];
 
-const company = [
-  "Privacy Policy",
-  "Compliance Standards",
-  "Terms of Service",
-  "Contact Us",
+const company: { label: string; href: string }[] = [
+  { label: "About Us", href: "/about" },
+  { label: "Blog", href: "/blog" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 const branches = ["New Delhi", "Mumbai", "Hyderabad", "Vizag"];
@@ -141,9 +143,10 @@ export default function Footer() {
               </div>
             </div>
 
-            <p className="mt-6 max-w-[310px] text-[13.5px] leading-[1.6] text-[#9fb0d6]">
-              MEA-registered logistics for apostille, embassy attestation,
-              translation and verification across India and 120+ countries.
+            <p className="mt-6 max-w-[320px] text-[13.5px] leading-[1.6] text-[#9fb0d6]">
+              Global Elite (OPC) Pvt Ltd — your gateway to global opportunities.
+              Travel, document legalization, AI marketing, education and
+              technology solutions across India and 120+ countries.
             </p>
 
             {/* Newsletter */}
@@ -169,20 +172,20 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Services */}
+          {/* Divisions */}
           <div>
             <h3 className="text-[13px] font-bold tracking-[0.04em] text-white">
-              Services
+              Divisions
             </h3>
             <ul className="mt-[18px] flex flex-col gap-[13px]">
-              {services.map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
+              {divisions.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
                     className="text-[13.5px] text-[#9fb0d6] transition-colors hover:text-white"
                   >
-                    {item}
-                  </a>
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -195,13 +198,13 @@ export default function Footer() {
             </h3>
             <ul className="mt-[18px] flex flex-col gap-[13px]">
               {company.map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
                     className="text-[13.5px] text-[#9fb0d6] transition-colors hover:text-white"
                   >
-                    {item}
-                  </a>
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>

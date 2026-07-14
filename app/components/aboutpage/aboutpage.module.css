@@ -1,0 +1,136 @@
+/* Interaction + responsive styles for the About page. Inline styles cover the
+   static look; this module carries :hover / :focus / media-query behaviour. */
+
+.card {
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1),
+    box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 26px 50px -22px rgba(22, 38, 92, 0.22);
+}
+
+.btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease,
+    color 0.2s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  color: #16265c;
+  padding: 12px 13px;
+  border: 1.5px solid #ece2f4;
+  border-radius: 10px;
+  background: #fff;
+}
+.input:focus {
+  outline: none;
+  border-color: #8e4fa0;
+  box-shadow: 0 0 0 4px rgba(142, 79, 160, 0.14);
+}
+
+.link {
+  transition: color 0.2s ease;
+}
+.link:hover {
+  color: #8e4fa0;
+}
+
+/* Layout grids */
+.heroGrid {
+  position: relative;
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.metricsRow {
+  max-width: 1180px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #ece2f4;
+  border-radius: 20px;
+  box-shadow: 0 18px 44px -24px rgba(22, 38, 92, 0.28);
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.pillarGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 46px;
+}
+
+.accredGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 40px;
+}
+
+.storyGrid {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  gap: 54px;
+  align-items: center;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  margin-top: 46px;
+}
+
+.founderGrid {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.formTwoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 1000px) {
+  .heroGrid,
+  .storyGrid,
+  .founderGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .metricsRow,
+  .accredGrid,
+  .teamGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pillarGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .metricsRow,
+  .accredGrid,
+  .teamGrid,
+  .formTwoCol {
+    grid-template-columns: 1fr;
+  }
+}
