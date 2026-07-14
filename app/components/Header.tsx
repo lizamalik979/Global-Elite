@@ -32,13 +32,13 @@ export default function Header() {
       {/* Top utility bar */}
       <div className="bg-white">
         <div className="mx-auto flex h-[79px] max-w-[1320px] items-center justify-between px-6 lg:px-10">
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2">
             <Image
               src="/assets/logo-icon.png"
               alt="Global Elite"
               width={883}
               height={804}
-              className="h-[46px] w-auto"
+              className="h-[36px] w-auto sm:h-[46px]"
               priority
             />
             <Image
@@ -46,7 +46,7 @@ export default function Header() {
               alt="Global Elite"
               width={1920}
               height={174}
-              className="hidden h-[22px] w-auto sm:block"
+              className="h-[15px] w-auto sm:h-[22px]"
               priority
             />
           </Link>
@@ -64,21 +64,24 @@ export default function Header() {
                 value="+91 88667 87599"
               />
             </div>
+            {/* Get A Quote — desktop only */}
             <a
               href="#"
-              className="gradient-quote flex h-11 items-center gap-2 rounded-[11px] px-5 text-[14.5px] font-bold text-white shadow-[0_12px_13px_rgba(142,79,160,0.55)]"
+              className="gradient-quote hidden h-11 items-center gap-2 rounded-[11px] px-5 text-[14.5px] font-bold text-white shadow-[0_12px_13px_rgba(142,79,160,0.55)] lg:flex"
             >
               Get A Quote
               <ArrowRight className="size-[17px]" />
             </a>
+            {/* Burger — mobile only, opens the drawer */}
+            <MobileMenu />
           </div>
         </div>
       </div>
 
-      {/* Primary nav strip — solid dark gradient so it works on every page
-          (not just over the home hero). The whole header is sticky. */}
+      {/* Primary nav strip — desktop only. On mobile the burger in the top bar
+          replaces it, so we don't render this dark strip at all. */}
       <nav
-        className="border-b border-white/10"
+        className="hidden border-b border-white/10 lg:block"
         style={{
           backgroundImage: "linear-gradient(100deg,#16265c,#3a2566)",
         }}
@@ -126,7 +129,6 @@ export default function Header() {
               );
             })}
           </div>
-          <MobileMenu />
         </div>
       </nav>
     </header>
