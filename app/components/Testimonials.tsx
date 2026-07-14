@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
 type IconProps = { className?: string };
 
 function ArrowLeftIcon({ className }: IconProps) {
@@ -98,6 +102,34 @@ const cardGradient =
   "linear-gradient(180deg, #e8e8ea 0%, #e4e4e4 48%, #c8c7ca 60%, #6e6b76 74%, #44404f 88%, #241f33 100%)";
 
 export default function Testimonials() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const updateEdges = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft <= 1);
+    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 1);
+  };
+
+  useEffect(() => {
+    updateEdges();
+    const el = trackRef.current;
+    if (!el) return;
+    window.addEventListener("resize", updateEdges);
+    return () => window.removeEventListener("resize", updateEdges);
+  }, []);
+
+  const scrollByCard = (dir: 1 | -1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    // one card width + the flex gap (20px)
+    const first = el.firstElementChild as HTMLElement | null;
+    const step = (first?.offsetWidth ?? 340) + 20;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
+
   return (
     <section className="bg-white py-16 lg:py-24">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-10">
@@ -117,19 +149,23 @@ export default function Testimonials() {
             </p>
           </div>
 
-          {/* Prev / Next navigation (static) */}
+          {/* Prev / Next navigation */}
           <div className="flex items-center gap-2.5">
             <button
               type="button"
               aria-label="Previous testimonials"
-              className="grid size-12 place-items-center rounded-full border border-[#e2d6ee] bg-white text-navy"
+              onClick={() => scrollByCard(-1)}
+              disabled={atStart}
+              className="grid size-12 place-items-center rounded-full border border-[#e2d6ee] bg-white text-navy transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white"
             >
               <ArrowLeftIcon className="size-5" />
             </button>
             <button
               type="button"
               aria-label="Next testimonials"
-              className="grid size-12 place-items-center rounded-full bg-navy text-white"
+              onClick={() => scrollByCard(1)}
+              disabled={atEnd}
+              className="grid size-12 place-items-center rounded-full bg-navy text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ArrowRightIcon className="size-5" />
             </button>
@@ -137,7 +173,11 @@ export default function Testimonials() {
         </div>
 
         {/* Cards */}
-        <div className="mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-6 pt-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          ref={trackRef}
+          onScroll={updateEdges}
+          className="mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-6 pt-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        >
           {testimonials.map((t) => (
             <article
               key={t.name}

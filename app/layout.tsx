@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -12,6 +14,15 @@ const jakarta = Plus_Jakarta_Sans({
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+});
+
+// Serif display face used by the About page editorial headings.
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -27,9 +38,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${inter.variable}`}>
+    <html
+      lang="en"
+      className={`${jakarta.variable} ${inter.variable} ${playfair.variable}`}
+    >
       <body className="min-h-screen bg-background font-sans antialiased">
+        <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );

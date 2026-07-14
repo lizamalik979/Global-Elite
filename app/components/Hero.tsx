@@ -1,36 +1,6 @@
 import Image from "next/image";
-import Header from "./Header";
-import {
-  ArrowRight,
-  HeartHandshake,
-  Headset,
-  Star,
-  Truck,
-  Wrench,
-} from "./icons";
-
-const features = [
-  {
-    icon: <HeartHandshake className="size-7" />,
-    title: "Dedicated Support",
-    text: "A dedicated team works tirelessly to ensure every client query is promptly addressed and resolved.",
-  },
-  {
-    icon: <Wrench className="size-7" />,
-    title: "Quality Services",
-    text: "We pride ourselves on delivering precise, compliant document services that earn lasting client loyalty.",
-  },
-  {
-    icon: <Headset className="size-7" />,
-    title: "24x7 Assistance",
-    text: "Our support team is available around the clock — reach out anytime and we'll move your case forward.",
-  },
-  {
-    icon: <Truck className="size-7" />,
-    title: "Free Pickup-Delivery",
-    text: "We offer free insured pickup and delivery for all clients across our New Delhi, Mumbai, Hyderabad & Vizag hubs.",
-  },
-];
+import { ArrowRight, Star } from "./icons";
+import HeroFeatures from "./HeroFeatures";
 
 export default function Hero() {
   return (
@@ -45,8 +15,6 @@ export default function Hero() {
       />
 
       <div className="relative">
-        <Header />
-
         <div className="mx-auto max-w-[1320px] px-6 pb-16 pt-12 lg:px-10">
           {/* Headline */}
           <div className="mx-auto max-w-[920px] text-center">
@@ -93,31 +61,8 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Feature cards */}
-          <div className="mx-auto mt-14 grid max-w-[1180px] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((f) => (
-              <div
-                key={f.title}
-                className="flex flex-col items-center rounded-[18px] bg-white px-6 pb-6 pt-8 text-center shadow-[0_22px_28px_rgba(8,20,54,0.28)]"
-              >
-                <span className="grid size-[58px] place-items-center rounded-2xl bg-gradient-to-br from-purple-50 to-[#efe1f8] text-purple-500">
-                  {f.icon}
-                </span>
-                <h3 className="mt-5 text-[16.5px] font-bold text-navy">
-                  {f.title}
-                </h3>
-                <p className="mt-2.5 text-[13.5px] leading-[1.55] text-slate">
-                  {f.text}
-                </p>
-                <a
-                  href="#"
-                  className="mt-6 grid size-10 place-items-center rounded-[10px] border-[1.5px] border-purple-100 text-navy transition-colors hover:bg-purple-50"
-                >
-                  <ArrowRight className="size-[18px]" />
-                </a>
-              </div>
-            ))}
-          </div>
+          {/* Feature cards — slider on mobile, grid on desktop */}
+          <HeroFeatures />
         </div>
       </div>
     </section>

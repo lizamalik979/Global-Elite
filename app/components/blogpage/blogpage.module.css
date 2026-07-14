@@ -1,0 +1,141 @@
+/* Interaction + responsive styles for the blog page. Inline styles cover the
+   static look; this module carries :hover / :focus / media-query behaviour. */
+
+.btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.pill {
+  transition: all 0.2s ease;
+}
+
+/* Category filter row: centred wrap on desktop, a single horizontal
+   scroll-slider on mobile. */
+.pillRow {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 720px) {
+  .pillRow {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    scroll-snap-type: x proximity;
+    padding: 14px 20px;
+  }
+  .pillRow::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+  .pillRow .pill {
+    flex-shrink: 0; /* keep pills full-width; scroll instead of squashing */
+    scroll-snap-align: start;
+  }
+}
+
+.input:focus {
+  outline: none;
+  border-color: #8e4fa0;
+  box-shadow: 0 0 0 4px rgba(142, 79, 160, 0.14);
+}
+
+/* Newsletter CTA — the email row must shrink to fit narrow cards. */
+.newsletterCard {
+  max-width: 1280px;
+  margin: 0 auto;
+  background: linear-gradient(120deg, #16265c, #3a2566);
+  border-radius: 24px;
+  padding: 48px 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 26px 56px -28px rgba(22, 38, 92, 0.5);
+}
+
+.newsletterForm {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #fff;
+  border-radius: 13px;
+  padding: 7px;
+  width: 340px;
+  max-width: 100%;
+  box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.35);
+}
+.newsletterForm .input {
+  min-width: 0; /* allow the field to shrink instead of pushing the button out */
+}
+
+@media (max-width: 640px) {
+  .newsletterCard {
+    padding: 32px 22px;
+    gap: 24px;
+  }
+  .newsletterForm {
+    width: 100%;
+  }
+}
+
+.card {
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 26px 50px -24px rgba(22, 38, 92, 0.28);
+}
+.thumbIc {
+  transition: transform 0.4s ease;
+}
+.card:hover .thumbIc {
+  transform: scale(1.08);
+}
+
+/* Layout grids */
+.featured {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 0;
+  border: 1px solid #ece2f4;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 14px 36px -22px rgba(22, 38, 92, 0.22);
+  cursor: pointer;
+}
+
+.postGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+}
+
+@media (max-width: 980px) {
+  .postGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .featured {
+    grid-template-columns: 1fr;
+  }
+  .postGrid {
+    grid-template-columns: 1fr;
+  }
+}
