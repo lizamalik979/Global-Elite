@@ -12,6 +12,22 @@
   transition: all 0.2s ease;
 }
 
+/* Sticky category bar. Sits below the full two-tier header on desktop
+   (utility bar 79px + nav strip 54px = 133px). On mobile only the ~79px top
+   bar exists (the dark nav strip is hidden), so it sticks higher. */
+.pillBar {
+  background: #fff;
+  border-bottom: 1px solid #ece2f4;
+  position: sticky;
+  top: 133px;
+  z-index: 20;
+}
+@media (max-width: 1023px) {
+  .pillBar {
+    top: 79px;
+  }
+}
+
 /* Category filter row: centred wrap on desktop, a single horizontal
    scroll-slider on mobile. */
 .pillRow {

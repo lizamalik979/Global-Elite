@@ -12,18 +12,9 @@ export default function BlogFeed() {
 
   return (
     <>
-      {/* CATEGORY PILLS — sticky just below the global header (utility bar
-          79px + nav strip 54px = 133px). zIndex stays under the header (z-30)
-          so the header always wins during the scroll transition. */}
-      <div
-        style={{
-          background: "#fff",
-          borderBottom: "1px solid #ece2f4",
-          position: "sticky",
-          top: 133,
-          zIndex: 20,
-        }}
-      >
+      {/* CATEGORY PILLS — sticky below the header (responsive offset: 133px
+          desktop two-tier header, 79px mobile top bar). */}
+      <div className={styles.pillBar}>
         <div className={styles.pillRow}>
           {topics.map((t) => {
             const on = t.id === active;

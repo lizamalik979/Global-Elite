@@ -31,17 +31,17 @@ export default function MobileMenu() {
 
   return (
     <>
-      {/* Burger button (mobile only) */}
+      {/* Burger button — sits in the white top bar on mobile, hidden on desktop */}
       <button
         type="button"
         aria-label="Open menu"
         aria-expanded={open}
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 text-[14.5px] font-bold text-white lg:hidden"
+        className="grid size-11 place-items-center rounded-[11px] text-navy transition-colors hover:bg-purple-50 lg:hidden"
       >
         <svg
           viewBox="0 0 24 24"
-          className="size-5"
+          className="size-7"
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
@@ -49,7 +49,6 @@ export default function MobileMenu() {
         >
           <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
-        Menu
       </button>
 
       {/* Backdrop */}
@@ -72,7 +71,7 @@ export default function MobileMenu() {
         aria-label="Menu"
       >
         {/* Drawer header */}
-        <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+        <div className="flex items-center justify-between px-6 py-5">
           <span className="text-[15px] font-extrabold tracking-wide text-gold">
             MENU
           </span>
@@ -80,7 +79,7 @@ export default function MobileMenu() {
             type="button"
             aria-label="Close menu"
             onClick={close}
-            className="grid size-9 place-items-center rounded-lg bg-white/10 text-white transition-colors hover:bg-white/20"
+            className="grid size-9 place-items-center text-white/80 transition-colors hover:text-white"
           >
             <svg
               viewBox="0 0 24 24"
