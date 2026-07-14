@@ -66,11 +66,12 @@ export default function BlogHero() {
         <h1
           style={{
             fontFamily: "var(--font-jakarta), sans-serif",
-            fontSize: 46,
+            fontSize: "clamp(30px, 7.5vw, 46px)",
             lineHeight: 1.1,
             fontWeight: 800,
             letterSpacing: "-.02em",
             color: "#fff",
+            overflowWrap: "break-word",
             marginTop: 18,
           }}
         >

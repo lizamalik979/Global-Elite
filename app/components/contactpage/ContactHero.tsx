@@ -65,11 +65,12 @@ export default function ContactHero() {
         <h1
           style={{
             fontFamily: "var(--font-jakarta), sans-serif",
-            fontSize: 48,
+            fontSize: "clamp(30px, 7.5vw, 48px)",
             lineHeight: 1.1,
             fontWeight: 800,
             letterSpacing: "-.03em",
             color: "#fff",
+            overflowWrap: "break-word",
             marginTop: 20,
           }}
         >

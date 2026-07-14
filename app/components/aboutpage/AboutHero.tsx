@@ -91,7 +91,8 @@ export default function AboutHero() {
           <h1
             style={{
               fontFamily: serif,
-              fontSize: 52,
+              fontSize: "clamp(32px, 8vw, 52px)",
+              overflowWrap: "break-word",
               lineHeight: 1.1,
               fontWeight: 800,
               letterSpacing: "-.02em",
@@ -102,13 +103,10 @@ export default function AboutHero() {
             Securing your global transitions with{" "}
             <span
               style={{
-                fontStyle: "italic",
                 background: "linear-gradient(120deg,#F2C66A,#E89B3A)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 color: "transparent",
-                paddingRight: "0.12em",
-                marginRight: "-0.12em",
               }}
             >
               absolute integrity

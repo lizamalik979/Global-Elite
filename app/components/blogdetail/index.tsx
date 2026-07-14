@@ -99,12 +99,13 @@ export default function BlogDetail({ entry }: { entry: BlogEntry }) {
 
           <h1
             style={{
-              fontSize: 42,
+              fontSize: "clamp(28px, 6.5vw, 42px)",
               lineHeight: 1.14,
               fontWeight: 800,
               letterSpacing: "-.02em",
               color: "#fff",
               marginTop: 16,
+              overflowWrap: "break-word",
             }}
           >
             {entry.title}
