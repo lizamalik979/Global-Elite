@@ -4,6 +4,57 @@
 
 import type { AboutPageContent } from "../../lib/cms";
 
+/**
+ * Crash protection: merge whatever the API returned with the fallback,
+ * section by section. Even a partial or malformed document renders — any
+ * missing field silently falls back to the built-in copy.
+ */
+export function normalizeAboutContent(raw: unknown): AboutPageContent {
+  const d = fallbackAboutContent;
+  if (!raw || typeof raw !== "object") return d;
+  const c = raw as Partial<AboutPageContent>;
+  return {
+    hero: {
+      ...d.hero,
+      ...(c.hero || {}),
+      ctaPrimary: { ...d.hero.ctaPrimary, ...(c.hero?.ctaPrimary || {}) },
+      ctaSecondary: { ...d.hero.ctaSecondary, ...(c.hero?.ctaSecondary || {}) },
+      chips: Array.isArray(c.hero?.chips) ? c.hero.chips : d.hero.chips,
+      form: {
+        ...d.hero.form,
+        ...(c.hero?.form || {}),
+        services: Array.isArray(c.hero?.form?.services)
+          ? c.hero.form.services
+          : d.hero.form.services,
+      },
+    },
+    metrics: Array.isArray(c.metrics) ? c.metrics : d.metrics,
+    pillars: {
+      ...d.pillars,
+      ...(c.pillars || {}),
+      items: Array.isArray(c.pillars?.items) ? c.pillars.items : d.pillars.items,
+    },
+    accreditations: {
+      ...d.accreditations,
+      ...(c.accreditations || {}),
+      items: Array.isArray(c.accreditations?.items)
+        ? c.accreditations.items
+        : d.accreditations.items,
+    },
+    story: {
+      ...d.story,
+      ...(c.story || {}),
+      timeline: Array.isArray(c.story?.timeline) ? c.story.timeline : d.story.timeline,
+    },
+    team: {
+      ...d.team,
+      ...(c.team || {}),
+      members: Array.isArray(c.team?.members) ? c.team.members : d.team.members,
+    },
+    founder: { ...d.founder, ...(c.founder || {}) },
+  };
+}
+
 export const ABOUT_META = {
   title: "About Us — Global Elite",
   description:

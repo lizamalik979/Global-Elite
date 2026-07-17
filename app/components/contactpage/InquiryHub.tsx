@@ -3,6 +3,7 @@
 import { useState } from "react";
 import styles from "./contactpage.module.css";
 import { ArrowRight, Check, ChevronDown, Lock } from "./icons";
+import type { ContactPageContent } from "../../lib/cms";
 
 const labelStyle: React.CSSProperties = {
   fontSize: 12,
@@ -49,7 +50,11 @@ const selectStyle: React.CSSProperties = {
   WebkitAppearance: "none",
 };
 
-export default function InquiryHub() {
+export default function InquiryHub({
+  inquiry,
+}: {
+  inquiry: ContactPageContent["inquiry"];
+}) {
   const [tab, setTab] = useState<"quote" | "inquiry">("quote");
   const [done, setDone] = useState(false);
 
@@ -66,8 +71,7 @@ export default function InquiryHub() {
     boxShadow: active ? "0 6px 16px -8px rgba(22,38,92,.25)" : "none",
   });
 
-  const ctaLabel =
-    tab === "quote" ? "Get Free Consultation & Pricing" : "Send Message";
+  const ctaLabel = tab === "quote" ? inquiry.ctaQuote : inquiry.ctaInquiry;
 
   return (
     <div
@@ -99,7 +103,7 @@ export default function InquiryHub() {
           style={tabStyle(tab === "quote")}
           onClick={() => setTab("quote")}
         >
-          Request a Quote
+          {inquiry.tabQuote}
         </button>
         <button
           type="button"
@@ -107,7 +111,7 @@ export default function InquiryHub() {
           style={tabStyle(tab === "inquiry")}
           onClick={() => setTab("inquiry")}
         >
-          General Inquiry
+          {inquiry.tabInquiry}
         </button>
       </div>
 
@@ -125,7 +129,7 @@ export default function InquiryHub() {
             {tab === "quote" ? (
               <div>
                 <h2 style={{ fontSize: 22, fontWeight: 800, color: "#16265C" }}>
-                  Get pricing for your documents
+                  {inquiry.quoteHeading}
                 </h2>
                 <p
                   style={{
@@ -135,8 +139,7 @@ export default function InquiryHub() {
                     lineHeight: 1.5,
                   }}
                 >
-                  Tell us what you need legalized — we&rsquo;ll reply with a
-                  fixed, all-inclusive quote.
+                  {inquiry.quoteIntro}
                 </p>
                 <div
                   style={{
@@ -167,11 +170,9 @@ export default function InquiryHub() {
                             className={styles.input}
                             style={{ ...selectStyle, padding: "12px 10px" }}
                           >
-                            <option>+91</option>
-                            <option>+971</option>
-                            <option>+966</option>
-                            <option>+1</option>
-                            <option>+44</option>
+                            {inquiry.phoneCodes.map((c) => (
+                              <option key={c}>{c}</option>
+                            ))}
                           </select>
                           <ChevronDown
                             width={14}
@@ -206,12 +207,9 @@ export default function InquiryHub() {
                     <Field label="Document Type">
                       <div style={{ position: "relative" }}>
                         <select className={styles.input} style={selectStyle}>
-                          <option>Degree Certificate</option>
-                          <option>Birth Certificate</option>
-                          <option>Marriage Certificate</option>
-                          <option>PCC</option>
-                          <option>Commercial Documents</option>
-                          <option>Other</option>
+                          {inquiry.documentTypes.map((t) => (
+                            <option key={t}>{t}</option>
+                          ))}
                         </select>
                         <SelectChevron />
                       </div>
@@ -226,14 +224,9 @@ export default function InquiryHub() {
                           <option value="" disabled>
                             Select destination
                           </option>
-                          <option>UAE</option>
-                          <option>Saudi Arabia</option>
-                          <option>Germany</option>
-                          <option>France</option>
-                          <option>Australia</option>
-                          <option>USA</option>
-                          <option>UK</option>
-                          <option>Other</option>
+                          {inquiry.destinations.map((dst) => (
+                            <option key={dst}>{dst}</option>
+                          ))}
                         </select>
                         <SelectChevron />
                       </div>
@@ -261,7 +254,7 @@ export default function InquiryHub() {
             ) : (
               <div>
                 <h2 style={{ fontSize: 22, fontWeight: 800, color: "#16265C" }}>
-                  Ask us anything
+                  {inquiry.inquiryHeading}
                 </h2>
                 <p
                   style={{
@@ -271,8 +264,7 @@ export default function InquiryHub() {
                     lineHeight: 1.5,
                   }}
                 >
-                  Questions about a service, partnership or an existing order —
-                  we&rsquo;ll route it to the right desk.
+                  {inquiry.inquiryIntro}
                 </p>
                 <div
                   style={{
@@ -367,8 +359,7 @@ export default function InquiryHub() {
                   maxWidth: 420,
                 }}
               >
-                Your personal data and document details are protected by
-                enterprise-grade encryption.
+                {inquiry.privacyNote}
               </span>
             </div>
           </div>
@@ -397,7 +388,7 @@ export default function InquiryHub() {
                 marginTop: 18,
               }}
             >
-              Message received!
+              {inquiry.successHeading}
             </h2>
             <p
               style={{
@@ -410,8 +401,7 @@ export default function InquiryHub() {
                 marginRight: "auto",
               }}
             >
-              An expert will get back to you within 15 minutes during business
-              hours.
+              {inquiry.successText}
             </p>
             <button
               type="button"
@@ -430,7 +420,7 @@ export default function InquiryHub() {
                 cursor: "pointer",
               }}
             >
-              Send another message
+              {inquiry.successButton}
             </button>
           </div>
         )}
