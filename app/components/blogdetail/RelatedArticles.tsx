@@ -1,10 +1,13 @@
 import Link from "next/link";
 import styles from "./blogdetail.module.css";
-import { posts } from "../blogpage/data";
+import type { PostCard } from "../../lib/cms";
+import { gradFor, iconFor } from "../blogpage/cover";
 
-// Show three other posts (never the one being read).
-export default function RelatedArticles({ currentSlug }: { currentSlug: string }) {
-  const related = posts.filter((p) => p.slug !== currentSlug).slice(0, 3);
+// Show up to three other CMS posts (never the one being read) — the server
+// page picks them, preferring the same category.
+export default function RelatedArticles({ posts }: { posts: PostCard[] }) {
+  const related = posts.slice(0, 3);
+  if (related.length === 0) return null;
 
   return (
     <section
@@ -27,7 +30,7 @@ export default function RelatedArticles({ currentSlug }: { currentSlug: string }
         </h2>
         <div className={styles.relatedGrid}>
           {related.map((r) => {
-            const Icon = r.icon;
+            const Icon = iconFor(r);
             return (
               <Link
                 key={r.slug}
@@ -49,7 +52,7 @@ export default function RelatedArticles({ currentSlug }: { currentSlug: string }
                   style={{
                     position: "relative",
                     height: 150,
-                    background: r.grad,
+                    background: gradFor(r),
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",

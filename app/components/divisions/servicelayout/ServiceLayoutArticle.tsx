@@ -116,8 +116,30 @@ function renderSection(s: Section) {
                   {i !== s.steps.length - 1 && <span style={{ width: 2, flex: 1, background: "linear-gradient(#d9c9e8,#ece2f4)", margin: "8px 0" }} />}
                 </div>
                 <div style={{ flex: 1, marginBottom: 16, background: "#fff", border: "1px solid #ece2f4", borderRadius: 16, padding: "18px 22px" }}>
-                  <div style={{ fontSize: 16.5, fontWeight: 800, color: "#16265C" }}>{st.title}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 16.5, fontWeight: 800, color: "#16265C" }}>{st.title}</span>
+                    {st.day && (
+                      <span style={{ fontSize: 11.5, fontWeight: 800, color: "#8E4FA0", background: "#F4ECFA", border: "1px solid #ece2f4", borderRadius: 99, padding: "3px 10px" }}>
+                        {st.day}
+                      </span>
+                    )}
+                  </div>
                   <p style={{ fontSize: 14.5, color: "#64748b", marginTop: 6, lineHeight: 1.6 }}>{st.text}</p>
+                  {st.details && st.details.length > 0 && (
+                    <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 7, marginTop: 10 }}>
+                      {st.details.map((d) => (
+                        <li key={d} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
+                          <Check width={14} height={14} style={{ color: "#8E4FA0", flexShrink: 0, marginTop: 3 }} />
+                          <span style={{ fontSize: 13.5, color: "#475569", lineHeight: 1.5 }}>{d}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {st.note && (
+                    <div style={{ marginTop: 12, fontSize: 12.5, fontWeight: 700, color: "#8E4FA0", background: "#F7F3FA", border: "1px dashed #d9c9e8", borderRadius: 10, padding: "8px 12px" }}>
+                      {st.note}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -149,6 +171,54 @@ function renderSection(s: Section) {
           <H2>{s.heading}</H2>
           {s.intro && <Intro>{s.intro}</Intro>}
           <FaqBlock faqs={s.faqs} />
+        </>
+      );
+
+    case "table":
+      return (
+        <>
+          <H2>{s.heading}</H2>
+          {s.intro && <Intro>{s.intro}</Intro>}
+          <div style={{ overflowX: "auto", marginTop: 20, border: "1px solid #ece2f4", borderRadius: 16 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+              <thead>
+                <tr style={{ background: "#F7F3FA" }}>
+                  {s.columns.map((col) => (
+                    <th key={col} style={{ textAlign: "left", padding: "13px 18px", fontFamily: jakarta, fontSize: 13, fontWeight: 800, color: "#16265C", borderBottom: "1px solid #ece2f4", whiteSpace: "nowrap" }}>
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {s.rows.map((row, ri) => (
+                  <tr key={ri} style={{ borderBottom: ri !== s.rows.length - 1 ? "1px solid #ece2f4" : "none" }}>
+                    {row.map((cell, ci) => (
+                      <td key={ci} style={{ padding: "13px 18px", color: ci === 0 ? "#16265C" : "#475569", fontWeight: ci === 0 ? 700 : 500 }}>
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      );
+
+    case "notes":
+      return (
+        <>
+          <H2>{s.heading}</H2>
+          {s.intro && <Intro>{s.intro}</Intro>}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 20 }}>
+            {s.notes.map((n) => (
+              <div key={n.title} style={{ background: "#F7F3FA", border: "1px solid #ece2f4", borderRadius: 16, padding: "18px 22px" }}>
+                <div style={{ fontFamily: jakarta, fontSize: 15.5, fontWeight: 800, color: "#16265C" }}>{n.title}</div>
+                <p style={{ fontSize: 14, color: "#475569", marginTop: 7, lineHeight: 1.7 }}>{n.body}</p>
+              </div>
+            ))}
+          </div>
         </>
       );
   }

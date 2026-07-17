@@ -1,15 +1,20 @@
+"use client";
+
+import { useState } from "react";
 import BlogHero from "./BlogHero";
 import BlogFeed from "./BlogFeed";
 import Newsletter from "./Newsletter";
+import type { PostCard } from "../../lib/cms";
 
-// Blog page (Global Elite Journal). The global Header and Footer are provided
-// by the root layout, so this only renders the page body: hero + filterable
-// feed (topics, featured, post grid) + newsletter CTA.
-export default function BlogPage() {
+// Blog page (Global Elite Journal), fully driven by CMS posts. The global
+// Header and Footer come from the root layout; this renders hero (with live
+// search) + filterable feed (topics, featured, post grid) + newsletter CTA.
+export default function BlogPage({ posts }: { posts: PostCard[] }) {
+  const [query, setQuery] = useState("");
   return (
     <div style={{ background: "#fff", color: "#16265C" }}>
-      <BlogHero />
-      <BlogFeed />
+      <BlogHero query={query} onQueryChange={setQuery} />
+      <BlogFeed posts={posts} query={query} />
       <Newsletter />
     </div>
   );

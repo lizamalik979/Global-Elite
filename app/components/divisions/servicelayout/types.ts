@@ -41,7 +41,15 @@ export type Section =
       heading: string;
       kind: "steps";
       intro?: string;
-      steps: { title: string; text: string }[];
+      // day/details/note are optional extras used by detail-style pages
+      // (e.g. apostille) — division pages use only title + text.
+      steps: {
+        title: string;
+        text: string;
+        day?: string;
+        details?: string[];
+        note?: string;
+      }[];
     }
   | {
       id: string;
@@ -58,6 +66,23 @@ export type Section =
       kind: "faq";
       intro?: string;
       faqs: { q: string; a: string }[];
+    }
+  | {
+      id: string;
+      label: string;
+      heading: string;
+      kind: "table";
+      intro?: string;
+      columns: string[];
+      rows: string[][];
+    }
+  | {
+      id: string;
+      label: string;
+      heading: string;
+      kind: "notes";
+      intro?: string;
+      notes: { title: string; body: string }[];
     };
 
 export type ServiceConfig = {
