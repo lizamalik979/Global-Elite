@@ -4,11 +4,29 @@ import BlogTocSidebar from "./BlogTocSidebar";
 import ArticleBody from "./ArticleBody";
 import RelatedArticles from "./RelatedArticles";
 import { Calendar, ChevronRight, Clock, Stamp } from "./icons";
-import type { BlogEntry } from "../blogpage/data";
+import type { PostCard } from "../../lib/cms";
 
-// Blog detail page. Global Header/Footer come from the root layout; this renders
-// the article: breadcrumb hero + cover + (sticky TOC | article) + related.
-export default function BlogDetail({ entry }: { entry: BlogEntry }) {
+export type BlogDetailProps = {
+  entry: PostCard;
+  /** Post body HTML from the CMS, h2s already annotated with art-* anchor ids */
+  contentHtml: string;
+  toc: { id: string; label: string }[];
+  faqs: { question: string; answer: string }[];
+  related: PostCard[];
+  featuredImage: string | null;
+};
+
+// Blog detail page, fully driven by a CMS post. Global Header/Footer come from
+// the root layout; this renders: breadcrumb hero + cover + (sticky TOC |
+// article) + related posts.
+export default function BlogDetail({
+  entry,
+  contentHtml,
+  toc,
+  faqs,
+  related,
+  featuredImage,
+}: BlogDetailProps) {
   return (
     <div style={{ background: "#fff", color: "#16265C" }}>
       {/* HERO */}
@@ -207,19 +225,36 @@ export default function BlogDetail({ entry }: { entry: BlogEntry }) {
               boxShadow: "0 26px 56px -28px rgba(22,38,92,.55)",
             }}
           >
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                backgroundImage:
-                  "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 12px,transparent 12px,transparent 24px)",
-              }}
-            />
-            <Stamp
-              width={84}
-              height={84}
-              style={{ color: "rgba(229,169,58,.85)", position: "relative" }}
-            />
+            {featuredImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={featuredImage}
+                alt={entry.title}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <>
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundImage:
+                      "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 12px,transparent 12px,transparent 24px)",
+                  }}
+                />
+                <Stamp
+                  width={84}
+                  height={84}
+                  style={{ color: "rgba(229,169,58,.85)", position: "relative" }}
+                />
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -227,12 +262,12 @@ export default function BlogDetail({ entry }: { entry: BlogEntry }) {
       {/* BODY */}
       <section style={{ background: "#fff", padding: "48px 28px 80px" }}>
         <div className={styles.bodyGrid}>
-          <BlogTocSidebar />
-          <ArticleBody entry={entry} />
+          <BlogTocSidebar items={toc} />
+          <ArticleBody entry={entry} contentHtml={contentHtml} faqs={faqs} />
         </div>
       </section>
 
-      <RelatedArticles currentSlug={entry.slug} />
+      <RelatedArticles posts={related} />
     </div>
   );
 }

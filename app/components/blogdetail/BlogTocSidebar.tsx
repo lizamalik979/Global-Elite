@@ -4,25 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./blogdetail.module.css";
 import { ArrowRight, Link as LinkIcon, Send, Share2 } from "./icons";
 
-export const tocItems = [
-  { id: "what", label: "What is an apostille?" },
-  { id: "attest", label: "What is attestation?" },
-  { id: "diff", label: "Key differences" },
-  { id: "which", label: "Which one do you need?" },
-];
+export type TocItem = { id: string; label: string };
 
 // Sticky "In this article" nav with scroll-spy + smooth scroll to each section.
-export default function BlogTocSidebar() {
-  const [active, setActive] = useState(tocItems[0].id);
+// Items come from the CMS post's h2 headings (annotated with art-* ids).
+export default function BlogTocSidebar({ items }: { items: TocItem[] }) {
+  const [active, setActive] = useState(items[0]?.id ?? "");
   const lockRef = useRef(false);
   const lockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    if (items.length === 0) return;
     const marker = 140;
     const onScroll = () => {
       if (lockRef.current) return;
-      let current = tocItems[0].id;
-      for (const t of tocItems) {
+      let current = items[0].id;
+      for (const t of items) {
         const el = document.getElementById("art-" + t.id);
         if (el && el.getBoundingClientRect().top <= marker) current = t.id;
       }
@@ -31,7 +28,7 @@ export default function BlogTocSidebar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [items]);
 
   const go = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -52,6 +49,7 @@ export default function BlogTocSidebar() {
 
   return (
     <aside className={styles.sidebar}>
+      {items.length > 0 && (
       <div
         style={{
           background: "#F7F3FA",
@@ -73,7 +71,7 @@ export default function BlogTocSidebar() {
         <nav
           style={{ display: "flex", flexDirection: "column", marginTop: 12 }}
         >
-          {tocItems.map((t) => {
+          {items.map((t) => {
             const on = t.id === active;
             return (
               <a
@@ -98,6 +96,7 @@ export default function BlogTocSidebar() {
           })}
         </nav>
       </div>
+      )}
 
       {/* share */}
       <div

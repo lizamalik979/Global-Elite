@@ -1,14 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import styles from "./blogpage.module.css";
-import { featured, posts, topics, type TopicId } from "./data";
+import type { PostCard } from "../../lib/cms";
+import { gradFor, iconFor } from "./cover";
 import { ArrowRight, ChevronDown, Stamp } from "./icons";
 
-export default function BlogFeed() {
-  const [active, setActive] = useState<TopicId>("all");
-  const shown = active === "all" ? posts : posts.filter((p) => p.topic === active);
+const PAGE_SIZE = 6;
+
+export default function BlogFeed({ posts, query }: { posts: PostCard[]; query: string }) {
+  const [active, setActive] = useState("all");
+  const [count, setCount] = useState(PAGE_SIZE);
+
+  // "All" + one pill per category that actually has posts
+  const topics = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const p of posts) if (!seen.has(p.topic)) seen.set(p.topic, p.cat);
+    return [
+      { id: "all", label: "All" },
+      ...[...seen].map(([id, label]) => ({ id, label })),
+    ];
+  }, [posts]);
+
+  const q = query.trim().toLowerCase();
+  const visible = posts.filter(
+    (p) =>
+      (active === "all" || p.topic === active) &&
+      (!q || p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q))
+  );
+
+  // Newest matching post is the featured card; the rest fill the grid.
+  const featured = visible[0] ?? null;
+  const grid = visible.slice(1);
+  const shown = grid.slice(0, count);
+  const FeaturedIcon = featured ? iconFor(featured) : Stamp;
 
   return (
     <>
@@ -22,7 +48,10 @@ export default function BlogFeed() {
               <button
                 key={t.id}
                 type="button"
-                onClick={() => setActive(t.id)}
+                onClick={() => {
+                  setActive(t.id);
+                  setCount(PAGE_SIZE);
+                }}
                 className={`${styles.pill} ${styles.btn}`}
                 style={{
                   fontFamily: "inherit",
@@ -44,160 +73,162 @@ export default function BlogFeed() {
       </div>
 
       {/* FEATURED */}
-      <section style={{ background: "#fff", padding: "52px 28px 0" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <Link
-            href={`/blog/${featured.slug}`}
-            className={`${styles.card} ${styles.featured}`}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <div
-              style={{
-                position: "relative",
-                minHeight: 340,
-                background: "linear-gradient(150deg,#16265C,#5E3F7E)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                overflow: "hidden",
-              }}
+      {featured && (
+        <section style={{ background: "#fff", padding: "52px 28px 0" }}>
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+            <Link
+              href={`/blog/${featured.slug}`}
+              className={`${styles.card} ${styles.featured}`}
+              style={{ textDecoration: "none", color: "inherit" }}
             >
               <div
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  backgroundImage:
-                    "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 11px,transparent 11px,transparent 22px)",
-                }}
-              />
-              <Stamp
-                width={80}
-                height={80}
-                className={styles.thumbIc}
-                style={{ color: "rgba(229,169,58,.85)", position: "relative" }}
-              />
-              <span
-                style={{
-                  position: "absolute",
-                  top: 18,
-                  left: 18,
-                  background: "#E5A93A",
-                  color: "#16265C",
-                  fontSize: 11,
-                  fontWeight: 800,
-                  letterSpacing: ".05em",
-                  padding: "6px 13px",
-                  borderRadius: 99,
-                }}
-              >
-                FEATURED
-              </span>
-            </div>
-            <div
-              style={{
-                padding: "38px 36px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-              }}
-            >
-              <div
-                style={{
+                  position: "relative",
+                  minHeight: 340,
+                  background: gradFor(featured),
                   display: "flex",
                   alignItems: "center",
-                  gap: 10,
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  color: "#8E4FA0",
+                  justifyContent: "center",
+                  overflow: "hidden",
                 }}
               >
-                <span>{featured.cat}</span>
-                <span
+                <div
                   style={{
-                    width: 4,
-                    height: 4,
-                    borderRadius: "50%",
-                    background: "#cbb6dc",
+                    position: "absolute",
+                    inset: 0,
+                    backgroundImage:
+                      "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 11px,transparent 11px,transparent 22px)",
                   }}
                 />
-                <span style={{ color: "#94a3b8" }}>{featured.read}</span>
-              </div>
-              <h2
-                style={{
-                  fontSize: 30,
-                  fontWeight: 800,
-                  letterSpacing: "-.02em",
-                  color: "#16265C",
-                  marginTop: 12,
-                  lineHeight: 1.2,
-                }}
-              >
-                {featured.title}
-              </h2>
-              <p
-                style={{
-                  fontSize: 15.5,
-                  color: "#566079",
-                  marginTop: 14,
-                  lineHeight: 1.65,
-                }}
-              >
-                {featured.excerpt}
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  marginTop: 24,
-                }}
-              >
+                <FeaturedIcon
+                  width={80}
+                  height={80}
+                  className={styles.thumbIc}
+                  style={{ color: "rgba(229,169,58,.85)", position: "relative" }}
+                />
                 <span
                   style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: "50%",
-                    background: "linear-gradient(140deg,#16265C,#3a2566)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#E5A93A",
+                    position: "absolute",
+                    top: 18,
+                    left: 18,
+                    background: "#E5A93A",
+                    color: "#16265C",
+                    fontSize: 11,
                     fontWeight: 800,
-                    fontSize: 15,
+                    letterSpacing: ".05em",
+                    padding: "6px 13px",
+                    borderRadius: 99,
                   }}
                 >
-                  {featured.initials}
+                  FEATURED
                 </span>
-                <div>
-                  <div
-                    style={{ fontSize: 13.5, fontWeight: 700, color: "#16265C" }}
-                  >
-                    {featured.author}
-                  </div>
-                  <div style={{ fontSize: 12.5, color: "#94a3b8" }}>
-                    {featured.date}
-                  </div>
-                </div>
-                <span
-                  className={styles.btn}
+              </div>
+              <div
+                style={{
+                  padding: "38px 36px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}
+              >
+                <div
                   style={{
-                    marginLeft: "auto",
-                    display: "inline-flex",
+                    display: "flex",
                     alignItems: "center",
-                    gap: 7,
-                    fontSize: 13.5,
-                    fontWeight: 800,
+                    gap: 10,
+                    fontSize: 12.5,
+                    fontWeight: 700,
                     color: "#8E4FA0",
                   }}
                 >
-                  Read article
-                  <ArrowRight width={16} height={16} style={{ color: "#8E4FA0" }} />
-                </span>
+                  <span>{featured.cat}</span>
+                  <span
+                    style={{
+                      width: 4,
+                      height: 4,
+                      borderRadius: "50%",
+                      background: "#cbb6dc",
+                    }}
+                  />
+                  <span style={{ color: "#94a3b8" }}>{featured.read}</span>
+                </div>
+                <h2
+                  style={{
+                    fontSize: 30,
+                    fontWeight: 800,
+                    letterSpacing: "-.02em",
+                    color: "#16265C",
+                    marginTop: 12,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {featured.title}
+                </h2>
+                <p
+                  style={{
+                    fontSize: 15.5,
+                    color: "#566079",
+                    marginTop: 14,
+                    lineHeight: 1.65,
+                  }}
+                >
+                  {featured.excerpt}
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    marginTop: 24,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: "50%",
+                      background: "linear-gradient(140deg,#16265C,#3a2566)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#E5A93A",
+                      fontWeight: 800,
+                      fontSize: 15,
+                    }}
+                  >
+                    {featured.initials}
+                  </span>
+                  <div>
+                    <div
+                      style={{ fontSize: 13.5, fontWeight: 700, color: "#16265C" }}
+                    >
+                      {featured.author}
+                    </div>
+                    <div style={{ fontSize: 12.5, color: "#94a3b8" }}>
+                      {featured.date}
+                    </div>
+                  </div>
+                  <span
+                    className={styles.btn}
+                    style={{
+                      marginLeft: "auto",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 7,
+                      fontSize: 13.5,
+                      fontWeight: 800,
+                      color: "#8E4FA0",
+                    }}
+                  >
+                    Read article
+                    <ArrowRight width={16} height={16} style={{ color: "#8E4FA0" }} />
+                  </span>
+                </div>
               </div>
-            </div>
-          </Link>
-        </div>
-      </section>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* POST GRID */}
       <section style={{ background: "#fff", padding: "40px 28px 80px" }}>
@@ -224,14 +255,14 @@ export default function BlogFeed() {
             <span
               style={{ fontSize: 13.5, color: "#94a3b8", fontWeight: 600 }}
             >
-              {shown.length} {shown.length === 1 ? "article" : "articles"}
+              {grid.length} {grid.length === 1 ? "article" : "articles"}
             </span>
           </div>
 
           {shown.length > 0 ? (
             <div className={styles.postGrid}>
               {shown.map((p) => {
-                const Icon = p.icon;
+                const Icon = iconFor(p);
                 return (
                   <Link
                     key={p.slug}
@@ -253,7 +284,7 @@ export default function BlogFeed() {
                       style={{
                         position: "relative",
                         height: 180,
-                        background: p.grad,
+                        background: gradFor(p),
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -388,35 +419,40 @@ export default function BlogFeed() {
                 padding: "40px 0",
               }}
             >
-              No articles in this category yet — check back soon.
+              {posts.length === 0
+                ? "No articles published yet — check back soon."
+                : "No articles match — try another topic or search."}
             </p>
           )}
 
-          <div
-            style={{ display: "flex", justifyContent: "center", marginTop: 44 }}
-          >
-            <button
-              type="button"
-              className={styles.btn}
-              style={{
-                background: "#fff",
-                border: "1.5px solid #8E4FA0",
-                color: "#8E4FA0",
-                fontFamily: "inherit",
-                fontWeight: 700,
-                fontSize: 14.5,
-                padding: "13px 28px",
-                borderRadius: 11,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-              }}
+          {grid.length > count && (
+            <div
+              style={{ display: "flex", justifyContent: "center", marginTop: 44 }}
             >
-              Load more articles
-              <ChevronDown width={17} height={17} style={{ color: "#8E4FA0" }} />
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => setCount((c) => c + PAGE_SIZE)}
+                className={styles.btn}
+                style={{
+                  background: "#fff",
+                  border: "1.5px solid #8E4FA0",
+                  color: "#8E4FA0",
+                  fontFamily: "inherit",
+                  fontWeight: 700,
+                  fontSize: 14.5,
+                  padding: "13px 28px",
+                  borderRadius: 11,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                Load more articles
+                <ChevronDown width={17} height={17} style={{ color: "#8E4FA0" }} />
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </>

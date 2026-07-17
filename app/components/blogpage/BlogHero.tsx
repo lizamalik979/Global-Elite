@@ -1,7 +1,14 @@
 import styles from "./blogpage.module.css";
 import { BookOpen, Search } from "./icons";
 
-export default function BlogHero() {
+// Live-search hero: typing filters the feed below (state lives in BlogPage).
+export default function BlogHero({
+  query,
+  onQueryChange,
+}: {
+  query: string;
+  onQueryChange: (q: string) => void;
+}) {
   return (
     <section
       style={{
@@ -100,6 +107,7 @@ export default function BlogHero() {
           documents travel the world.
         </p>
         <form
+          onSubmit={(e) => e.preventDefault()}
           style={{
             display: "flex",
             alignItems: "center",
@@ -121,6 +129,8 @@ export default function BlogHero() {
             className={styles.input}
             type="text"
             placeholder="Search articles…"
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
             style={{
               flex: 1,
               border: "none",

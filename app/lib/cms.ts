@@ -93,6 +93,148 @@ export async function getServicePage(slug: string): Promise<CmsServicePage | nul
   }
 }
 
+// ── Blog posts ───────────────────────────────────────────────────────────────
+
+export type CmsCategory = { id: string; name: string; slug: string; color: string };
+
+export type CmsPostSummary = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  featuredImage: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  readTimeMinutes: number;
+  author: { id: string; username: string } | null;
+  category: CmsCategory[];
+};
+
+export type CmsPost = CmsPostSummary & {
+  content: string | null;
+  faq_items: { question: string; answer: string }[];
+};
+
+/** Published posts, newest first. Tagged `post-list` for on-demand refresh. */
+export async function getAllPosts(limit = 50): Promise<CmsPostSummary[]> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/post/client/all-blog?page=1&limit=${limit}`, {
+      next: { revalidate: 3600, tags: ["post-list"] },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const posts: CmsPostSummary[] = Array.isArray(data?.posts) ? data.posts : [];
+    // Newest publication first — the top post becomes the featured card
+    return posts.sort(
+      (a, b) =>
+        new Date(b.publishedAt ?? b.createdAt).getTime() -
+        new Date(a.publishedAt ?? a.createdAt).getTime()
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** One published post with full HTML content; null if missing/unpublished. */
+export async function getPost(slug: string): Promise<CmsPost | null> {
+  try {
+    const res = await fetch(
+      `${CMS_URL}/api/post/client/detail-blog?slug=${encodeURIComponent(slug)}`,
+      { next: { revalidate: 3600, tags: ["post-list", `post-${slug}`] } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data?.success || !data?.post) return null;
+    const post = data.post as CmsPost & { faq_items?: unknown };
+    return {
+      ...post,
+      readTimeMinutes:
+        (post as { readTimeMinutes?: number }).readTimeMinutes ??
+        computeReadTime(post.content || ""),
+      faq_items: Array.isArray(post.faq_items)
+        ? (post.faq_items as CmsPost["faq_items"])
+        : [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+function computeReadTime(html: string): number {
+  const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
+
+// ── Display helpers shared by the blog pages ─────────────────────────────────
+
+/** "Meera Iyer" → "MI"; single names use the first two letters. */
+export function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "GE";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+export function formatPostDate(iso: string | null, withYear = false): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    ...(withYear ? { year: "numeric" } : {}),
+  });
+}
+
+/** Flat card shape the blog UI components render. */
+export type PostCard = {
+  slug: string;
+  cat: string;
+  topic: string;
+  read: string;
+  title: string;
+  excerpt: string;
+  author: string;
+  initials: string;
+  date: string;
+};
+
+export function toPostCard(p: CmsPostSummary, withYear = false): PostCard {
+  const cat = p.category?.[0];
+  const author = p.author?.username || "Global Elite";
+  return {
+    slug: p.slug,
+    cat: cat?.name || "Journal",
+    topic: cat?.slug || "journal",
+    read: `${p.readTimeMinutes} min read`,
+    title: p.title,
+    excerpt: p.excerpt || "",
+    author,
+    initials: initialsOf(author),
+    date: formatPostDate(p.publishedAt ?? p.createdAt, withYear),
+  };
+}
+
+/**
+ * Give every h2 in the post HTML an `art-N` anchor id and return the TOC.
+ * Runs on the server so the sidebar and body always agree on ids.
+ */
+export function buildToc(html: string): {
+  html: string;
+  toc: { id: string; label: string }[];
+} {
+  const toc: { id: string; label: string }[] = [];
+  let i = 0;
+  const withIds = html.replace(/<h2(\s[^>]*)?>([\s\S]*?)<\/h2>/gi, (_m, attrs, inner) => {
+    const id = `h${i++}`;
+    const label = String(inner).replace(/<[^>]+>/g, "").trim();
+    if (label) toc.push({ id, label });
+    const rest = (attrs || "").replace(/\sid="[^"]*"/, "");
+    return `<h2 id="art-${id}" style="scroll-margin-top:150px"${rest}>${inner}</h2>`;
+  });
+  return { html: withIds, toc };
+}
+
 /** Slugs of all service pages, used for sitemaps / static params. */
 export async function getServiceSlugs(): Promise<string[]> {
   try {
