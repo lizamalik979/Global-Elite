@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getFooterMenu } from "../lib/cms";
 
 /* ---------- inline lucide-style icons ---------- */
 
@@ -93,28 +94,68 @@ function LockIcon({ className }: { className?: string }) {
   );
 }
 
-/* ---------- data ---------- */
+/* ---------- fallback data (used when the CMS is unreachable/empty) ---------- */
 
 // The five business divisions of Global Elite (OPC) Pvt Ltd.
-const divisions: { label: string; href: string }[] = [
-  { label: "Travel & Tourism", href: "/travel" },
-  { label: "Documentation Solutions", href: "/services" },
-  { label: "Marketing & AI", href: "/marketing" },
-  { label: "Education & Career", href: "/education" },
-  { label: "AI & Technology", href: "/technology" },
+const fallbackColumns: FooterColumn[] = [
+  {
+    title: "Divisions",
+    links: [
+      { label: "Travel & Tourism", href: "/travel" },
+      { label: "Documentation Solutions", href: "/services" },
+      { label: "Marketing & AI", href: "/marketing" },
+      { label: "Education & Career", href: "/education" },
+      { label: "AI & Technology", href: "/technology" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { label: "About Us", href: "/about" },
+      { label: "Blog", href: "/blog" },
+      { label: "Contact Us", href: "/contact" },
+    ],
+  },
+  {
+    title: "Branch Offices",
+    links: [
+      { label: "New Delhi", href: "#" },
+      { label: "Mumbai", href: "#" },
+      { label: "Hyderabad", href: "#" },
+      { label: "Vizag", href: "#" },
+    ],
+  },
 ];
 
-const company: { label: string; href: string }[] = [
-  { label: "About Us", href: "/about" },
-  { label: "Blog", href: "/blog" },
-  { label: "Contact Us", href: "/contact" },
-];
+const fallbackDescription =
+  "Global Elite (OPC) Pvt Ltd — your gateway to global opportunities. Travel, document legalization, AI marketing, education and technology solutions across India and 120+ countries.";
 
-const branches = ["New Delhi", "Mumbai", "Hyderabad", "Vizag"];
+const fallbackCopyright = "© 2026 Global Elite Logistics. All rights reserved.";
+
+type FooterColumn = { title: string; links: { label: string; href: string }[] };
 
 /* ---------- component ---------- */
 
-export default function Footer() {
+// Footer content comes from the CMS (Menus → Footer Menu): each main menu item
+// is a link column (its children are the links), and contact-detail items
+// titled "Description" / "Copyright" override the brand text.
+export default async function Footer() {
+  const cms = await getFooterMenu();
+
+  const columns: FooterColumn[] = cms
+    ? cms.columns.map((col) => ({
+        title: col.title,
+        links: Array.isArray(col.child_menu)
+          ? col.child_menu.map((c) => ({ label: c.title, href: c.url || "#" }))
+          : [],
+      }))
+    : fallbackColumns;
+
+  const detail = (name: string) =>
+    cms?.details.find((d) => d.title?.trim().toLowerCase() === name)?.value;
+
+  const description = detail("description") || fallbackDescription;
+  const copyright = detail("copyright") || fallbackCopyright;
   return (
     <footer className="bg-navy text-white">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-10">
@@ -144,9 +185,7 @@ export default function Footer() {
             </div>
 
             <p className="mt-6 max-w-[320px] text-[13.5px] leading-[1.6] text-[#9fb0d6]">
-              Global Elite (OPC) Pvt Ltd — your gateway to global opportunities.
-              Travel, document legalization, AI marketing, education and
-              technology solutions across India and 120+ countries.
+              {description}
             </p>
 
             {/* Newsletter */}
@@ -172,63 +211,33 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Divisions */}
-          <div>
-            <h3 className="text-[13px] font-bold tracking-[0.04em] text-white">
-              Divisions
-            </h3>
-            <ul className="mt-[18px] flex flex-col gap-[13px]">
-              {divisions.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="text-[13.5px] text-[#9fb0d6] transition-colors hover:text-white"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h3 className="text-[13px] font-bold tracking-[0.04em] text-white">
-              Company
-            </h3>
-            <ul className="mt-[18px] flex flex-col gap-[13px]">
-              {company.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="text-[13.5px] text-[#9fb0d6] transition-colors hover:text-white"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Branch Offices */}
-          <div>
-            <h3 className="text-[13px] font-bold tracking-[0.04em] text-white">
-              Branch Offices
-            </h3>
-            <ul className="mt-[18px] flex flex-col gap-[12px]">
-              {branches.map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="flex items-center gap-2 text-[13.5px] text-[#9fb0d6] transition-colors hover:text-white"
-                  >
-                    <MapPin className="size-[14px] shrink-0 text-[#9fb0d6]" />
-                    {item}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Link columns (from the CMS footer menu) */}
+          {columns.map((col) => {
+            // Branch/office columns render a location pin next to each entry
+            const withPin = /branch|office|location/i.test(col.title);
+            return (
+              <div key={col.title}>
+                <h3 className="text-[13px] font-bold tracking-[0.04em] text-white">
+                  {col.title}
+                </h3>
+                <ul className="mt-[18px] flex flex-col gap-[13px]">
+                  {col.links.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="flex items-center gap-2 text-[13.5px] text-[#9fb0d6] transition-colors hover:text-white"
+                      >
+                        {withPin && (
+                          <MapPin className="size-[14px] shrink-0 text-[#9fb0d6]" />
+                        )}
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
 
         {/* Divider */}
@@ -236,9 +245,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col gap-5 py-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[12.5px] text-[#7587b3]">
-            © 2026 Global Elite Logistics. All rights reserved.
-          </p>
+          <p className="text-[12.5px] text-[#7587b3]">{copyright}</p>
           <div className="flex items-center gap-3">
             <span className="flex h-[28.5px] items-center gap-2 rounded-[8px] border border-[#2c3f6e] px-2.5 text-[11.5px] text-[#9fb0d6]">
               <ShieldCheck className="size-[14px]" />
