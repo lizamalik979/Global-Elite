@@ -2,28 +2,11 @@
 
 import { useState } from "react";
 import { Plus } from "./icons";
+import type { ContactPageContent } from "../../lib/cms";
 
-const faqs = [
-  {
-    q: "Can I drop off my documents in person?",
-    a: "Yes — you can hand over documents at any of our four offices (New Delhi, Mumbai, Hyderabad, Vizag) during business hours. Most clients prefer our free insured doorstep pickup instead.",
-  },
-  {
-    q: "How do I track an existing order?",
-    a: "Use the tracking reference from your pickup receipt — enter it on the Track Order page, or send it to us on WhatsApp for an instant status update at every checkpoint.",
-  },
-  {
-    q: "What are your operating hours?",
-    a: "Monday to Saturday, 9:30 AM – 6:30 PM IST. WhatsApp messages received after hours are answered first thing the next business day.",
-  },
-  {
-    q: "Do you serve cities without a branch office?",
-    a: "Yes — our insured courier network covers all of India. Documents from any city are collected, processed through the correct state and MEA desks, and returned to your door.",
-  },
-];
-
-export default function ContactFaq() {
+export default function ContactFaq({ faq }: { faq: ContactPageContent["faq"] }) {
   const [open, setOpen] = useState(0);
+  const faqs = faq.items;
 
   return (
     <section style={{ background: "#fff", padding: "72px 28px 84px" }}>
@@ -37,7 +20,7 @@ export default function ContactFaq() {
               color: "#8E4FA0",
             }}
           >
-            BEFORE YOU REACH OUT
+            {faq.kicker}
           </span>
           <h2
             style={{
@@ -49,7 +32,7 @@ export default function ContactFaq() {
               marginTop: 10,
             }}
           >
-            Quick answers
+            {faq.heading}
           </h2>
         </div>
         <div

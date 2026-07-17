@@ -1,28 +1,16 @@
 import styles from "./contactpage.module.css";
-import {
-  BadgeCheck,
-  Clock,
-  Files,
-  Gauge,
-  MapPin,
-  MessageCircle,
-  Navigation,
-  PhoneCall,
-} from "./icons";
+import { Clock, MapPin, MessageCircle, Navigation, PhoneCall } from "./icons";
+import { resolveContactIcon } from "./iconmap";
+import type { ContactPageContent } from "../../lib/cms";
 
-const trust = [
-  { icon: BadgeCheck, value: "MEA", label: "Registered Partner" },
-  { icon: Gauge, value: "99.7%", label: "Success Rate" },
-  { icon: Files, value: "25K+", label: "Documents Legalized" },
-];
-
-export default function ContactAside() {
+export default function ContactAside({ aside }: { aside: ContactPageContent["aside"] }) {
+  const trust = aside.trust.map((t) => ({ ...t, Icon: resolveContactIcon(t.icon) }));
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* quick-contact cards */}
       <div className={styles.quickCards}>
         <a
-          href="https://wa.me/918866473857"
+          href={aside.whatsapp.url}
           className={styles.card}
           style={{
             background: "#fff",
@@ -51,7 +39,7 @@ export default function ContactAside() {
           </span>
           <div>
             <div style={{ fontSize: 15, fontWeight: 800, color: "#16265C" }}>
-              Chat on WhatsApp
+              {aside.whatsapp.title}
             </div>
             <div
               style={{
@@ -61,12 +49,12 @@ export default function ContactAside() {
                 marginTop: 2,
               }}
             >
-              Fastest • +91 88664 73857
+              {aside.whatsapp.sub}
             </div>
           </div>
         </a>
         <a
-          href="tel:+918866787599"
+          href={aside.call.url}
           className={styles.card}
           style={{
             background: "#fff",
@@ -95,7 +83,7 @@ export default function ContactAside() {
           </span>
           <div>
             <div style={{ fontSize: 15, fontWeight: 800, color: "#16265C" }}>
-              Call Support Hotline
+              {aside.call.title}
             </div>
             <div
               style={{
@@ -105,7 +93,7 @@ export default function ContactAside() {
                 marginTop: 2,
               }}
             >
-              Mon–Sat • +91 88667 87599
+              {aside.call.sub}
             </div>
           </div>
         </a>
@@ -128,11 +116,11 @@ export default function ContactAside() {
             color: "#E5A93A",
           }}
         >
-          WHY CLIENTS TRUST US
+          {aside.trustKicker}
         </div>
         <div className={styles.trustGrid}>
           {trust.map((t) => {
-            const Icon = t.icon;
+            const Icon = t.Icon;
             return (
               <div key={t.label}>
                 <div
@@ -173,8 +161,8 @@ export default function ContactAside() {
       >
         <div style={{ position: "relative", height: 210, overflow: "hidden" }}>
           <iframe
-            src="https://www.openstreetmap.org/export/embed.html?bbox=77.2065%2C28.6255%2C77.2270%2C28.6380&layer=mapnik&marker=28.6315%2C77.2167"
-            title="Global Elite Head Office — Connaught Place, New Delhi"
+            src={aside.office.mapEmbedUrl}
+            title={aside.office.name}
             loading="lazy"
             style={{
               position: "absolute",
@@ -186,7 +174,7 @@ export default function ContactAside() {
             }}
           />
           <a
-            href="https://www.openstreetmap.org/?mlat=28.6315&mlon=77.2167#map=16/28.6315/77.2167"
+            href={aside.office.directionsUrl}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -235,7 +223,7 @@ export default function ContactAside() {
           </span>
           <div>
             <div style={{ fontSize: 14.5, fontWeight: 800, color: "#16265C" }}>
-              Global Elite — Head Office
+              {aside.office.name}
             </div>
             <p
               style={{
@@ -245,9 +233,12 @@ export default function ContactAside() {
                 lineHeight: 1.6,
               }}
             >
-              Level 4, Connaught Place Central Desk,
-              <br />
-              New Delhi 110001, India
+              {aside.office.address.split("\n").map((line, i, arr) => (
+                <span key={i}>
+                  {line}
+                  {i < arr.length - 1 && <br />}
+                </span>
+              ))}
             </p>
             <div
               style={{
@@ -261,7 +252,7 @@ export default function ContactAside() {
               <span
                 style={{ fontSize: 12.5, fontWeight: 700, color: "#8E4FA0" }}
               >
-                Mon–Sat, 9:30 AM – 6:30 PM IST
+                {aside.office.hours}
               </span>
             </div>
           </div>

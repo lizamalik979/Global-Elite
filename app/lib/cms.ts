@@ -323,6 +323,75 @@ export async function getAboutPage(): Promise<CmsAboutPage | null> {
   }
 }
 
+// ── Contact page ─────────────────────────────────────────────────────────────
+
+/** Mirrors the CMS ContactPageContent (icons as string names). */
+export type ContactPageContent = {
+  hero: {
+    badge: string;
+    titleLead: string;
+    titleAccent: string;
+    /** Words wrapped in *asterisks* render bold white */
+    subtitle: string;
+  };
+  inquiry: {
+    tabQuote: string;
+    tabInquiry: string;
+    quoteHeading: string;
+    quoteIntro: string;
+    phoneCodes: string[];
+    documentTypes: string[];
+    destinations: string[];
+    inquiryHeading: string;
+    inquiryIntro: string;
+    ctaQuote: string;
+    ctaInquiry: string;
+    privacyNote: string;
+    successHeading: string;
+    successText: string;
+    successButton: string;
+  };
+  aside: {
+    whatsapp: { title: string; sub: string; url: string };
+    call: { title: string; sub: string; url: string };
+    trustKicker: string;
+    trust: { icon: string; value: string; label: string }[];
+    office: {
+      name: string;
+      address: string;
+      hours: string;
+      mapEmbedUrl: string;
+      directionsUrl: string;
+    };
+  };
+  faq: { kicker: string; heading: string; items: { q: string; a: string }[] };
+};
+
+export type CmsContactPage = {
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  content: ContactPageContent;
+};
+
+/**
+ * Contact page from the CMS. Null when unreachable or not created yet — the
+ * /contact route falls back to the built-in content. Tagged `contact-page`.
+ */
+export async function getContactPage(): Promise<CmsContactPage | null> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/contact`, {
+      next: { revalidate: 3600, tags: ["contact-page"] },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const page = data?.data;
+    if (!page?.content || typeof page.content !== "object" || !page.content.hero) return null;
+    return page as CmsContactPage;
+  } catch {
+    return null;
+  }
+}
+
 // ── Header & footer menus ────────────────────────────────────────────────────
 
 /** Menu item as stored by the CMS (nested one level for dropdowns/columns). */

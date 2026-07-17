@@ -1,6 +1,24 @@
 import { Headset } from "./icons";
+import type { ContactPageContent } from "../../lib/cms";
 
-export default function ContactHero() {
+// Renders `*text*` segments in bold white (e.g. "reply within *15 minutes*").
+function Emphasized({ text }: { text: string }) {
+  return (
+    <>
+      {text.split("*").map((part, i) =>
+        i % 2 === 1 ? (
+          <b key={i} style={{ color: "#fff" }}>
+            {part}
+          </b>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
+
+export default function ContactHero({ hero }: { hero: ContactPageContent["hero"] }) {
   return (
     <section
       style={{
@@ -60,7 +78,7 @@ export default function ContactHero() {
           }}
         >
           <Headset width={15} height={15} style={{ color: "#E5A93A" }} />
-          WE&apos;RE HERE TO HELP
+          {hero.badge}
         </div>
         <h1
           style={{
@@ -74,7 +92,7 @@ export default function ContactHero() {
             marginTop: 20,
           }}
         >
-          Let&rsquo;s legalize{" "}
+          {hero.titleLead}{" "}
           <span
             style={{
               background: "linear-gradient(120deg,#F2C66A,#E89B3A)",
@@ -83,7 +101,7 @@ export default function ContactHero() {
               color: "transparent",
             }}
           >
-            your journey
+            {hero.titleAccent}
           </span>
         </h1>
         <p
@@ -96,9 +114,7 @@ export default function ContactHero() {
             fontWeight: 500,
           }}
         >
-          Our legal verification experts typically reply within{" "}
-          <b style={{ color: "#fff" }}>15 minutes</b> during business hours — by
-          phone, WhatsApp or email.
+          <Emphasized text={hero.subtitle} />
         </p>
       </div>
     </section>
