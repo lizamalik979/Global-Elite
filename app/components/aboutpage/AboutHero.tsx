@@ -2,26 +2,20 @@
 
 import { useState } from "react";
 import styles from "./aboutpage.module.css";
-import {
-  ArrowRight,
-  BadgeCheck,
-  CalendarCheck,
-  Check,
-  Feather,
-  Lock,
-  Star,
-} from "./icons";
+import { ArrowRight, Check, Feather, Lock } from "./icons";
+import { resolveAboutIcon } from "./iconmap";
+import type { AboutPageContent } from "../../lib/cms";
 
 const serif = "var(--font-playfair), Georgia, serif";
 
-const chips = [
-  { icon: Star, label: "4.9 / 5 rated", color: "#F2C66A", fill: true },
-  { icon: CalendarCheck, label: "15+ years", color: "#E89B3A" },
-  { icon: BadgeCheck, label: "MEA-registered", color: "#E89B3A" },
-];
-
-export default function AboutHero() {
+export default function AboutHero({ hero }: { hero: AboutPageContent["hero"] }) {
   const [done, setDone] = useState(false);
+  const chips = hero.chips.map((c) => ({
+    ...c,
+    Icon: resolveAboutIcon(c.icon),
+    // the star rating chip keeps its brighter gold accent
+    color: c.icon === "Star" ? "#F2C66A" : "#E89B3A",
+  }));
 
   return (
     <section
@@ -86,7 +80,7 @@ export default function AboutHero() {
                 background: "linear-gradient(135deg,#E5A93A,#8E4FA0)",
               }}
             />
-            OUR HERITAGE &amp; MISSION
+            {hero.badge}
           </div>
           <h1
             style={{
@@ -100,7 +94,7 @@ export default function AboutHero() {
               color: "#fff",
             }}
           >
-            Securing your global transitions with{" "}
+            {hero.titleLead}{" "}
             <span
               style={{
                 background: "linear-gradient(120deg,#F2C66A,#E89B3A)",
@@ -109,7 +103,7 @@ export default function AboutHero() {
                 color: "transparent",
               }}
             >
-              absolute integrity
+              {hero.titleAccent}
             </span>
           </h1>
           <p
@@ -122,15 +116,11 @@ export default function AboutHero() {
               maxWidth: 560,
             }}
           >
-            Global Elite is a premium cross-border legal-logistics desk operating
-            directly alongside the Ministry of External Affairs. For over fifteen
-            years we have turned the maze of state departments, central ministries
-            and foreign consulates into a single, accountable chain of custody —
-            so your documents move with the same precision your ambitions demand.
+            {hero.subtitle}
           </p>
           <div style={{ display: "flex", gap: 14, marginTop: 30, flexWrap: "wrap" }}>
             <a
-              href="/contact"
+              href={hero.ctaPrimary.url}
               className={styles.btn}
               style={{
                 background: "linear-gradient(120deg,#E89B3A,#D26FA0,#8E5FB6)",
@@ -146,11 +136,11 @@ export default function AboutHero() {
                 boxShadow: "0 16px 34px -14px rgba(0,0,0,.4)",
               }}
             >
-              Start Application
+              {hero.ctaPrimary.text}
               <ArrowRight width={17} height={17} style={{ color: "#fff" }} />
             </a>
             <a
-              href="/services"
+              href={hero.ctaSecondary.url}
               className={styles.btn}
               style={{
                 background: "rgba(255,255,255,.14)",
@@ -163,7 +153,7 @@ export default function AboutHero() {
                 border: "1px solid rgba(255,255,255,.45)",
               }}
             >
-              Our Process
+              {hero.ctaSecondary.text}
             </a>
           </div>
           <div
@@ -176,7 +166,7 @@ export default function AboutHero() {
             }}
           >
             {chips.map((c) => {
-              const Icon = c.icon;
+              const Icon = c.Icon;
               return (
                 <span
                   key={c.label}
@@ -304,7 +294,7 @@ export default function AboutHero() {
                         color: "#8E4FA0",
                       }}
                     >
-                      GET A FREE QUOTE
+                      {hero.form.kicker}
                     </div>
                     <h3
                       style={{
@@ -316,7 +306,7 @@ export default function AboutHero() {
                         lineHeight: 1.15,
                       }}
                     >
-                      Start your application
+                      {hero.form.title}
                     </h3>
                   </div>
                   <span
@@ -381,11 +371,9 @@ export default function AboutHero() {
                       className={styles.input}
                       style={{ cursor: "pointer" }}
                     >
-                      <option>MEA Apostille</option>
-                      <option>Embassy Attestation</option>
-                      <option>Certified Translation</option>
-                      <option>HRD / SDM Verification</option>
-                      <option>Corporate Legalization</option>
+                      {hero.form.services.map((s) => (
+                        <option key={s}>{s}</option>
+                      ))}
                     </select>
                   </div>
                   <button
@@ -426,7 +414,7 @@ export default function AboutHero() {
                     <span
                       style={{ fontSize: 11.5, color: "#94a3b8", fontWeight: 600 }}
                     >
-                      100% confidential • Reply within 1 business hour
+                      {hero.form.note}
                     </span>
                   </div>
                 </form>

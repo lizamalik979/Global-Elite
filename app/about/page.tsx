@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
 import AboutPage from "../components/aboutpage";
+import { ABOUT_META, fallbackAboutContent } from "../components/aboutpage/data";
+import { getAboutPage } from "../lib/cms";
 
-export const metadata: Metadata = {
-  title: "About Us — Global Elite",
-  description:
-    "Global Elite is a premium cross-border legal-logistics desk operating alongside the Ministry of External Affairs — 15+ years, 120+ countries, absolute integrity.",
-};
+// Content is managed in the CMS (Dashboard → About Us). The built-in fallback
+// renders when the CMS is unreachable or the page hasn't been saved yet.
 
-export default function About() {
-  return <AboutPage />;
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getAboutPage();
+  return {
+    title: page?.metaTitle || ABOUT_META.title,
+    description: page?.metaDescription || ABOUT_META.description,
+  };
+}
+
+export default async function About() {
+  const page = await getAboutPage();
+  return <AboutPage content={page?.content ?? fallbackAboutContent} />;
 }

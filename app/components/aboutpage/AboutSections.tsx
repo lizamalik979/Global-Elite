@@ -1,17 +1,14 @@
 import Image from "next/image";
 import styles from "./aboutpage.module.css";
-import {
-  accreditations,
-  metrics,
-  pillars,
-  team,
-  timeline,
-} from "./data";
 import { Award, Check, Mail, Share2, UserRound } from "./icons";
+import { resolveAboutIcon } from "./iconmap";
+import type { AboutPageContent } from "../../lib/cms";
 
 const serif = "var(--font-playfair), Georgia, serif";
 
-export default function AboutSections() {
+export default function AboutSections({ content }: { content: AboutPageContent }) {
+  const { metrics, pillars, accreditations, story, team, founder } = content;
+  const timeline = story.timeline;
   return (
     <>
       {/* TRUST METRICS — sits below the hero with a clear gap */}
@@ -75,7 +72,7 @@ export default function AboutSections() {
                 color: "#8E4FA0",
               }}
             >
-              OUR OPERATING PILLARS
+              {pillars.kicker}
             </span>
             <h2
               style={{
@@ -87,7 +84,7 @@ export default function AboutSections() {
                 color: "#16265C",
               }}
             >
-              The chain of trust
+              {pillars.heading}
             </h2>
             <p
               style={{
@@ -97,14 +94,13 @@ export default function AboutSections() {
                 lineHeight: 1.55,
               }}
             >
-              Three commitments that hold every document we handle to a single,
-              uncompromising standard.
+              {pillars.intro}
             </p>
           </div>
 
           <div className={styles.pillarGrid}>
-            {pillars.map((p) => {
-              const Icon = p.icon;
+            {pillars.items.map((p) => {
+              const Icon = resolveAboutIcon(p.icon);
               return (
                 <div
                   key={p.title}
@@ -215,15 +211,14 @@ export default function AboutSections() {
               color: "#16265C",
             }}
           >
-            Recognized standards &amp; frameworks
+            {accreditations.heading}
           </h2>
           <p style={{ fontSize: 15, color: "#64748b", marginTop: 10 }}>
-            Audited adherence to the bodies that govern secure, lawful document
-            handling.
+            {accreditations.intro}
           </p>
           <div className={styles.accredGrid}>
-            {accreditations.map((a) => {
-              const Icon = a.icon;
+            {accreditations.items.map((a) => {
+              const Icon = resolveAboutIcon(a.icon);
               return (
                 <div
                   key={a.title}
@@ -322,10 +317,10 @@ export default function AboutSections() {
                     fontFamily: serif,
                   }}
                 >
-                  Est. 2009
+                  {story.badgeTitle}
                 </div>
                 <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>
-                  New Delhi, India
+                  {story.badgeSub}
                 </div>
               </div>
             </div>
@@ -340,7 +335,7 @@ export default function AboutSections() {
                 color: "#8E4FA0",
               }}
             >
-              • OUR STORY
+              • {story.kicker}
             </span>
             <h2
               style={{
@@ -353,9 +348,9 @@ export default function AboutSections() {
                 color: "#16265C",
               }}
             >
-              From a single desk to a{" "}
+              {story.headingLead}{" "}
               <span style={{ fontStyle: "italic", color: "#8E4FA0" }}>
-                global network
+                {story.headingAccent}
               </span>
             </h2>
             <p
@@ -367,10 +362,7 @@ export default function AboutSections() {
                 fontWeight: 500,
               }}
             >
-              What began as a one-room legalization desk in New Delhi has grown
-              into a nationwide logistics network trusted by families, students
-              and corporations to move their most important documents across
-              borders — without a single compromise on integrity.
+              {story.intro}
             </p>
 
             <div
@@ -458,7 +450,7 @@ export default function AboutSections() {
                 color: "#8E4FA0",
               }}
             >
-              • OUR PEOPLE
+              • {team.kicker}
             </span>
             <h2
               style={{
@@ -471,8 +463,10 @@ export default function AboutSections() {
                 color: "#16265C",
               }}
             >
-              The people behind the{" "}
-              <span style={{ fontStyle: "italic", color: "#8E4FA0" }}>seal</span>
+              {team.headingLead}{" "}
+              <span style={{ fontStyle: "italic", color: "#8E4FA0" }}>
+                {team.headingAccent}
+              </span>
             </h2>
             <p
               style={{
@@ -482,13 +476,12 @@ export default function AboutSections() {
                 lineHeight: 1.55,
               }}
             >
-              A specialist team that treats every document as if it were their own
-              passport.
+              {team.intro}
             </p>
           </div>
 
           <div className={styles.teamGrid}>
-            {team.map((member) => (
+            {team.members.map((member) => (
               <div
                 key={member.name}
                 className={styles.card}
@@ -501,13 +494,30 @@ export default function AboutSections() {
                 }}
               >
                 <div style={{ position: "relative", height: 240 }}>
-                  <Image
-                    src={member.photo}
-                    alt={member.name}
-                    fill
-                    sizes="(max-width: 560px) 100vw, (max-width: 1000px) 50vw, 25vw"
-                    style={{ objectFit: "cover" }}
-                  />
+                  {member.photo.startsWith("/") ? (
+                    <Image
+                      src={member.photo}
+                      alt={member.name}
+                      fill
+                      sizes="(max-width: 560px) 100vw, (max-width: 1000px) 50vw, 25vw"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    // CMS media-library URLs live on another domain, which
+                    // next/image blocks unless whitelisted — render directly.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={member.photo || "/assets/about-team-1.jpg"}
+                      alt={member.name}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
                 </div>
                 <div style={{ padding: "20px 22px" }}>
                   <div
@@ -575,7 +585,7 @@ export default function AboutSections() {
                 color: "#8E4FA0",
               }}
             >
-              LEADERSHIP
+              {founder.kicker}
             </span>
             <h2
               style={{
@@ -590,7 +600,7 @@ export default function AboutSections() {
                 paddingBottom: 6,
               }}
             >
-              A word from our founder
+              {founder.heading}
             </h2>
             <div
               style={{
@@ -620,15 +630,15 @@ export default function AboutSections() {
               </div>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#16265C" }}>
-                  A. R. Khanna
+                  {founder.name}
                 </div>
                 <div
                   style={{ fontSize: 13, color: "#8E4FA0", fontWeight: 700 }}
                 >
-                  Founder &amp; Managing Director
+                  {founder.role}
                 </div>
                 <div style={{ fontSize: 12.5, color: "#64748b", marginTop: 3 }}>
-                  15+ years in cross-border legal logistics
+                  {founder.experience}
                 </div>
               </div>
             </div>
@@ -668,9 +678,7 @@ export default function AboutSections() {
                 fontStyle: "italic",
               }}
             >
-              True global mobility requires a foundation of absolute legal trust.
-              We built Global Elite to turn complex international bureaucracies
-              into a secure, flawless day-to-day operation.
+              {founder.quote}
             </p>
             <div
               style={{
@@ -685,7 +693,7 @@ export default function AboutSections() {
               <span
                 style={{ fontSize: 13.5, fontWeight: 700, color: "#E5A93A" }}
               >
-                Global Elite
+                {founder.signature}
               </span>
             </div>
           </div>
