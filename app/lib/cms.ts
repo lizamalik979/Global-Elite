@@ -235,6 +235,94 @@ export function buildToc(html: string): {
   return { html: withIds, toc };
 }
 
+// ── About page ───────────────────────────────────────────────────────────────
+
+/** Mirrors the CMS AboutPageContent (icons as string names). */
+export type AboutPageContent = {
+  hero: {
+    badge: string;
+    titleLead: string;
+    titleAccent: string;
+    subtitle: string;
+    ctaPrimary: { text: string; url: string };
+    ctaSecondary: { text: string; url: string };
+    chips: { icon: string; label: string }[];
+    form: { kicker: string; title: string; services: string[]; note: string };
+  };
+  metrics: { value: string; suffix: string; label: string; sub: string }[];
+  pillars: {
+    kicker: string;
+    heading: string;
+    intro: string;
+    items: { icon: string; title: string; points: string[] }[];
+  };
+  accreditations: {
+    heading: string;
+    intro: string;
+    items: { icon: string; title: string; sub: string }[];
+  };
+  story: {
+    kicker: string;
+    headingLead: string;
+    headingAccent: string;
+    intro: string;
+    badgeTitle: string;
+    badgeSub: string;
+    timeline: { year: string; title: string; desc: string; dark?: boolean }[];
+  };
+  team: {
+    kicker: string;
+    headingLead: string;
+    headingAccent: string;
+    intro: string;
+    members: {
+      name: string;
+      role: string;
+      desc: string;
+      photo: string;
+      // social links — icons only render on the site when a value is set
+      email?: string;
+      linkedin?: string;
+      instagram?: string;
+    }[];
+  };
+  founder: {
+    kicker: string;
+    heading: string;
+    name: string;
+    role: string;
+    experience: string;
+    quote: string;
+    signature: string;
+  };
+};
+
+export type CmsAboutPage = {
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  content: AboutPageContent;
+};
+
+/**
+ * About page from the CMS. Null when unreachable or not saved yet — the /about
+ * route falls back to the built-in content. Tagged `about-page` (the tag the
+ * CMS dashboard revalidates).
+ */
+export async function getAboutPage(): Promise<CmsAboutPage | null> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/about`, {
+      next: { revalidate: 3600, tags: ["about-page"] },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const page = data?.aboutPage;
+    if (!page?.content || typeof page.content !== "object") return null;
+    return page as CmsAboutPage;
+  } catch {
+    return null;
+  }
+}
+
 // ── Header & footer menus ────────────────────────────────────────────────────
 
 /** Menu item as stored by the CMS (nested one level for dropdowns/columns). */
