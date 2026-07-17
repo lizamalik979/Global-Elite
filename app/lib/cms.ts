@@ -235,6 +235,77 @@ export function buildToc(html: string): {
   return { html: withIds, toc };
 }
 
+// ── Header & footer menus ────────────────────────────────────────────────────
+
+/** Menu item as stored by the CMS (nested one level for dropdowns/columns). */
+export type CmsMenuItem = {
+  title: string;
+  url: string;
+  child_menu?: { title: string; url: string }[] | false;
+};
+
+/** Utility-bar content of the header (contact blocks + CTA button). */
+export type CmsHeaderContact = {
+  whatsappLabel?: string;
+  whatsappNumber?: string;
+  careLabel?: string;
+  careNumber?: string;
+  ctaText?: string;
+  ctaUrl?: string;
+};
+
+export type CmsFooterDetail = {
+  title: string;
+  type?: string;
+  value?: string;
+  url?: string;
+};
+
+/**
+ * Header menu from the CMS. Returns null when the CMS is unreachable or no
+ * menu items exist yet — the Header falls back to the built-in nav.
+ */
+export async function getHeaderMenu(): Promise<{
+  items: CmsMenuItem[];
+  contact: CmsHeaderContact;
+} | null> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/header-menu`, {
+      next: { revalidate: 3600, tags: ["header-menu"] },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const items: CmsMenuItem[] = data?.headerMenu?.main_menu ?? [];
+    if (!Array.isArray(items) || items.length === 0) return null;
+    return { items, contact: data?.headerMenu?.contact_details ?? {} };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Footer menu from the CMS: link columns + typed detail items (description,
+ * copyright…). Null → the Footer falls back to its built-in content.
+ */
+export async function getFooterMenu(): Promise<{
+  columns: CmsMenuItem[];
+  details: CmsFooterDetail[];
+} | null> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/footer-menu`, {
+      next: { revalidate: 3600, tags: ["footer-menu"] },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const columns: CmsMenuItem[] = data?.footerMenu?.main_menu ?? [];
+    if (!Array.isArray(columns) || columns.length === 0) return null;
+    const details = data?.footerMenu?.contact_details;
+    return { columns, details: Array.isArray(details) ? details : [] };
+  } catch {
+    return null;
+  }
+}
+
 /** Slugs of all service pages, used for sitemaps / static params. */
 export async function getServiceSlugs(): Promise<string[]> {
   try {

@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { navLinks } from "./navData";
+import { usePathname } from "next/navigation";
+import type { NavLink as NavLinkItem } from "./navData";
 import { ChevronDown, ChevronRight } from "./icons";
 
-export default function MobileMenu() {
+export default function MobileMenu({ links }: { links: NavLinkItem[] }) {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const pathname = usePathname();
 
   // Lock body scroll and support Escape-to-close while the drawer is open.
   useEffect(() => {
@@ -96,7 +98,7 @@ export default function MobileMenu() {
 
         {/* Links */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {navLinks.map((link) => {
+          {links.map((link) => {
             if (!link.menu) {
               return (
                 <Link
@@ -104,7 +106,7 @@ export default function MobileMenu() {
                   href={link.href}
                   onClick={close}
                   className={`block rounded-xl px-4 py-3.5 text-[15px] font-bold transition-colors ${
-                    link.active
+                    pathname === link.href
                       ? "text-gold"
                       : "text-white/95 hover:bg-white/10"
                   }`}
