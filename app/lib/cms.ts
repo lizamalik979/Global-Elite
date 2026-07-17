@@ -275,7 +275,16 @@ export type AboutPageContent = {
     headingLead: string;
     headingAccent: string;
     intro: string;
-    members: { name: string; role: string; desc: string; photo: string }[];
+    members: {
+      name: string;
+      role: string;
+      desc: string;
+      photo: string;
+      // social links — icons only render on the site when a value is set
+      email?: string;
+      linkedin?: string;
+      instagram?: string;
+    }[];
   };
   founder: {
     kicker: string;

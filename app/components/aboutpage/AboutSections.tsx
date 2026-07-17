@@ -1,6 +1,6 @@
 import Image from "next/image";
 import styles from "./aboutpage.module.css";
-import { Award, Check, Mail, Share2, UserRound } from "./icons";
+import { Award, Check, Instagram, Linkedin, Mail, UserRound } from "./icons";
 import { resolveAboutIcon } from "./iconmap";
 import type { AboutPageContent } from "../../lib/cms";
 
@@ -545,27 +545,57 @@ export default function AboutSections({ content }: { content: AboutPageContent }
                   >
                     {member.desc}
                   </p>
-                  <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-                    {[Share2, Mail].map((Ic, k) => (
-                      <a
-                        key={k}
-                        href="#"
-                        aria-label={k === 0 ? "LinkedIn" : "Email"}
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 9,
-                          background: "#F4ECFA",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <Ic width={16} height={16} style={{ color: "#8E4FA0" }} />
-                      </a>
-                    ))}
-                  </div>
+                  {/* Social links — each icon only renders when the CMS has a value */}
+                  {(member.email || member.linkedin || member.instagram) && (
+                    <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                      {[
+                        member.linkedin && {
+                          key: "linkedin",
+                          label: `${member.name} on LinkedIn`,
+                          href: member.linkedin,
+                          Icon: Linkedin,
+                          external: true,
+                        },
+                        member.instagram && {
+                          key: "instagram",
+                          label: `${member.name} on Instagram`,
+                          href: member.instagram,
+                          Icon: Instagram,
+                          external: true,
+                        },
+                        member.email && {
+                          key: "email",
+                          label: `Email ${member.name}`,
+                          href: `mailto:${member.email}`,
+                          Icon: Mail,
+                          external: false,
+                        },
+                      ]
+                        .filter((l): l is Exclude<typeof l, "" | undefined | false> => Boolean(l))
+                        .map(({ key, label, href, Icon, external }) => (
+                          <a
+                            key={key}
+                            href={href}
+                            aria-label={label}
+                            {...(external
+                              ? { target: "_blank", rel: "noopener noreferrer" }
+                              : {})}
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: 9,
+                              background: "#F4ECFA",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              textDecoration: "none",
+                            }}
+                          >
+                            <Icon width={16} height={16} style={{ color: "#8E4FA0" }} />
+                          </a>
+                        ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
