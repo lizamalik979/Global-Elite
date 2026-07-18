@@ -477,17 +477,42 @@ export async function getFooterMenu(): Promise<{
   }
 }
 
-/** Slugs of all service pages, used for sitemaps / static params. */
-export async function getServiceSlugs(): Promise<string[]> {
+export type SitemapEntry = { slug: string; updatedAt: string | null };
+
+/**
+ * Published service pages for the sitemap — only slug + updatedAt travel over
+ * the wire (the CMS endpoint selects nothing else).
+ */
+export async function getServiceSitemapEntries(): Promise<SitemapEntry[]> {
   try {
     const res = await fetch(`${CMS_URL}/api/services/client/sitemap`, {
       next: { revalidate: 3600, tags: ["service-list"] },
     });
     if (!res.ok) return [];
     const data = await res.json();
-    const rows: { slug: string }[] = data?.data ?? data?.services ?? [];
-    return rows.map((r) => r.slug).filter(Boolean);
+    const rows: SitemapEntry[] = data?.services ?? data?.data ?? [];
+    return rows.filter((r) => r.slug);
   } catch {
     return [];
   }
+}
+
+/** Published blog posts for the sitemap — slug + updatedAt only. */
+export async function getPostSitemapEntries(): Promise<SitemapEntry[]> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/post/client/sitemap`, {
+      next: { revalidate: 3600, tags: ["post-list"] },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const rows: SitemapEntry[] = data?.posts ?? data?.data ?? [];
+    return rows.filter((r) => r.slug);
+  } catch {
+    return [];
+  }
+}
+
+/** Slugs of all published service pages, used for static params. */
+export async function getServiceSlugs(): Promise<string[]> {
+  return (await getServiceSitemapEntries()).map((r) => r.slug);
 }
