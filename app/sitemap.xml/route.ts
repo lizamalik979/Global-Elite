@@ -1,4 +1,4 @@
-import { buildSitemapIndex, xmlResponse } from "../lib/sitemap";
+import { buildSitemapIndex, xmlResponse } from "../lib/sitemap-utils";
 
 // Main sitemap: an index pointing at the three child sitemaps.
 export async function GET() {

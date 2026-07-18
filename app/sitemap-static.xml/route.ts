@@ -1,4 +1,4 @@
-import { buildUrlSet, xmlResponse } from "../lib/sitemap";
+import { buildUrlSet, xmlResponse } from "../lib/sitemap-utils";
 
 // Fixed site pages (CMS-driven pages live in the services/blog sitemaps).
 export async function GET() {

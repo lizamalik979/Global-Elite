@@ -1,5 +1,5 @@
 import { getServiceSitemapEntries } from "../lib/cms";
-import { buildUrlSet, xmlResponse } from "../lib/sitemap";
+import { buildUrlSet, xmlResponse } from "../lib/sitemap-utils";
 
 // All PUBLISHED service/division pages from the CMS (slug + updatedAt only).
 export async function GET() {

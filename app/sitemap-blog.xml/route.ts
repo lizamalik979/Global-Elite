@@ -1,5 +1,5 @@
 import { getPostSitemapEntries } from "../lib/cms";
-import { buildUrlSet, xmlResponse } from "../lib/sitemap";
+import { buildUrlSet, xmlResponse } from "../lib/sitemap-utils";
 
 // All PUBLISHED blog posts from the CMS (slug + updatedAt only).
 export async function GET() {
