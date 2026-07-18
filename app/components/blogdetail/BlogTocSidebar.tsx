@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./blogdetail.module.css";
-import { ArrowRight, Link as LinkIcon, Send, Share2 } from "./icons";
+import { ArrowRight, Check, Link as LinkIcon, Send, Share2 } from "./icons";
 
 export type TocItem = { id: string; label: string };
 
@@ -10,6 +10,7 @@ export type TocItem = { id: string; label: string };
 // Items come from the CMS post's h2 headings (annotated with art-* ids).
 export default function BlogTocSidebar({ items }: { items: TocItem[] }) {
   const [active, setActive] = useState(items[0]?.id ?? "");
+  const [copied, setCopied] = useState(false);
   const lockRef = useRef(false);
   const lockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -113,29 +114,120 @@ export default function BlogTocSidebar({ items }: { items: TocItem[] }) {
           Share
         </span>
         {[
-          { Icon: Send, label: "Share on X" },
-          { Icon: Share2, label: "Share" },
-          { Icon: LinkIcon, label: "Copy link" },
-        ].map(({ Icon, label }) => (
-          <a
-            key={label}
-            href="#"
-            aria-label={label}
-            className={styles.share}
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: "#F4ECFA",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textDecoration: "none",
-            }}
-          >
-            <Icon width={17} height={17} style={{ color: "#8E4FA0" }} />
-          </a>
-        ))}
+          {
+            Icon: Send,
+            label: "Share on WhatsApp",
+            onClick: () => {
+              const url = window.location.href;
+              const title = document.title;
+              window.open(
+                `https://wa.me/?text=${encodeURIComponent(`${title}\n${url}`)}`,
+                "_blank",
+                "noopener,noreferrer"
+              );
+            },
+          },
+          {
+            Icon: Share2,
+            label: "Share",
+            onClick: async () => {
+              const url = window.location.href;
+              const title = document.title;
+              // Native share sheet (mobile / supported browsers) → the user
+              // picks their own app/account; falls back to LinkedIn on desktop
+              if (navigator.share) {
+                try {
+                  await navigator.share({ title, url });
+                } catch {
+                  /* user closed the share sheet */
+                }
+              } else {
+                window.open(
+                  `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+                  "_blank",
+                  "noopener,noreferrer"
+                );
+              }
+            },
+          },
+          {
+            Icon: LinkIcon,
+            label: "Copy link",
+            onClick: async () => {
+              try {
+                await navigator.clipboard.writeText(window.location.href);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              } catch {
+                /* clipboard unavailable */
+              }
+            },
+          },
+        ].map(({ Icon, label, onClick }) => {
+          const isCopy = label === "Copy link";
+          const showCopied = isCopy && copied;
+          return (
+            <button
+              key={label}
+              type="button"
+              onClick={onClick}
+              aria-label={showCopied ? "Link copied" : label}
+              title={showCopied ? undefined : label}
+              className={styles.share}
+              style={{
+                position: "relative",
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: showCopied ? "#e9f9ef" : "#F4ECFA",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {showCopied ? (
+                <Check width={17} height={17} style={{ color: "#1da851" }} />
+              ) : (
+                <Icon width={17} height={17} style={{ color: "#8E4FA0" }} />
+              )}
+              {/* "Link copied!" tooltip */}
+              {showCopied && (
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: "calc(100% + 8px)",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "#16265C",
+                    color: "#fff",
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    padding: "6px 10px",
+                    borderRadius: 8,
+                    whiteSpace: "nowrap",
+                    boxShadow: "0 8px 18px -8px rgba(22,38,92,.5)",
+                    pointerEvents: "none",
+                    zIndex: 10,
+                  }}
+                >
+                  Link copied!
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      border: "5px solid transparent",
+                      borderTopColor: "#16265C",
+                    }}
+                  />
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* quote card */}

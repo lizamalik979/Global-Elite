@@ -154,9 +154,13 @@
   font-size: inherit;
 }
 .prose img {
+  /* Block-level, full-width and responsive — never wraps beside text */
+  display: block;
+  width: 100%;
   max-width: 100%;
+  height: auto;
   border-radius: 14px;
-  margin-top: 20px;
+  margin: 24px 0;
 }
 .prose table {
   width: 100%;

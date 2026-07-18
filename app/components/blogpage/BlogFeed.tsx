@@ -92,20 +92,38 @@ export default function BlogFeed({ posts, query }: { posts: PostCard[]; query: s
                   overflow: "hidden",
                 }}
               >
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    backgroundImage:
-                      "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 11px,transparent 11px,transparent 22px)",
-                  }}
-                />
-                <FeaturedIcon
-                  width={80}
-                  height={80}
-                  className={styles.thumbIc}
-                  style={{ color: "rgba(229,169,58,.85)", position: "relative" }}
-                />
+                {featured.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={featured.image}
+                    alt={featured.title}
+                    className={styles.thumbIc}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        backgroundImage:
+                          "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 11px,transparent 11px,transparent 22px)",
+                      }}
+                    />
+                    <FeaturedIcon
+                      width={80}
+                      height={80}
+                      className={styles.thumbIc}
+                      style={{ color: "rgba(229,169,58,.85)", position: "relative" }}
+                    />
+                  </>
+                )}
                 <span
                   style={{
                     position: "absolute",
@@ -291,23 +309,41 @@ export default function BlogFeed({ posts, query }: { posts: PostCard[]; query: s
                         overflow: "hidden",
                       }}
                     >
-                      <div
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          backgroundImage:
-                            "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 10px,transparent 10px,transparent 20px)",
-                        }}
-                      />
-                      <Icon
-                        width={48}
-                        height={48}
-                        className={styles.thumbIc}
-                        style={{
-                          color: "rgba(255,255,255,.92)",
-                          position: "relative",
-                        }}
-                      />
+                      {p.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={p.image}
+                          alt={p.title}
+                          className={styles.thumbIc}
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        <>
+                          <div
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              backgroundImage:
+                                "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 10px,transparent 10px,transparent 20px)",
+                            }}
+                          />
+                          <Icon
+                            width={48}
+                            height={48}
+                            className={styles.thumbIc}
+                            style={{
+                              color: "rgba(255,255,255,.92)",
+                              position: "relative",
+                            }}
+                          />
+                        </>
+                      )}
                       <span
                         style={{
                           position: "absolute",

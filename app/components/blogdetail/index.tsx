@@ -215,7 +215,8 @@ export default function BlogDetail({
           <div
             style={{
               position: "relative",
-              height: 300,
+              // Responsive cover: ~16:7 on desktop, shrinks with the viewport
+              height: "clamp(280px, 38vw, 480px)",
               borderRadius: 22,
               background: "linear-gradient(150deg,#16265C,#5E3F7E)",
               display: "flex",
