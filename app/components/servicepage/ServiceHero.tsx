@@ -3,6 +3,7 @@
 import { useState } from "react";
 import styles from "./servicepage.module.css";
 import { heroChips, quoteCountries } from "./data";
+import { submitLead } from "../../lib/leads";
 import {
   ArrowRight,
   BadgeCheck,
@@ -24,6 +25,33 @@ const chipIcon = {
 
 export default function ServiceHero() {
   const [quoteDone, setQuoteDone] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [destination, setDestination] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (sending) return;
+    setSending(true);
+    setError("");
+    const result = await submitLead({
+      name,
+      email,
+      phone,
+      source: "Degree Certificate Apostille page",
+      extra: destination ? { "Destination Country": destination } : {},
+    });
+    setSending(false);
+    if (result.ok) {
+      setQuoteDone(true);
+      setName(""); setPhone(""); setEmail(""); setDestination("");
+    } else {
+      setError(result.message);
+    }
+  };
 
   return (
     <section
@@ -297,10 +325,7 @@ export default function ServiceHero() {
                   back within one business hour.
                 </p>
                 <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setQuoteDone(true);
-                  }}
+                  onSubmit={handleSubmit}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -314,6 +339,8 @@ export default function ServiceHero() {
                       type="text"
                       required
                       placeholder="Your full name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                     />
                   </Field>
                   <div
@@ -329,6 +356,8 @@ export default function ServiceHero() {
                         type="tel"
                         required
                         placeholder="+91 00000 00000"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                       />
                     </Field>
                     <Field label="Email">
@@ -337,6 +366,8 @@ export default function ServiceHero() {
                         type="email"
                         required
                         placeholder="you@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </Field>
                   </div>
@@ -344,7 +375,8 @@ export default function ServiceHero() {
                     <div style={{ position: "relative" }}>
                       <select
                         className={styles.input}
-                        defaultValue=""
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
                         style={{ appearance: "none", WebkitAppearance: "none" }}
                       >
                         <option value="" disabled>
@@ -368,12 +400,17 @@ export default function ServiceHero() {
                       />
                     </div>
                   </Field>
+                  {error && (
+                    <p style={{ fontSize: 12.5, color: "#dc2626", fontWeight: 600, textAlign: "center" }}>{error}</p>
+                  )}
                   <button
                     type="submit"
+                    disabled={sending}
                     className={styles.btn}
                     style={{
                       width: "100%",
                       marginTop: 4,
+                      opacity: sending ? 0.7 : 1,
                       background:
                         "linear-gradient(120deg,#E89B3A,#D26FA0,#8E5FB6)",
                       color: "#fff",
@@ -391,7 +428,7 @@ export default function ServiceHero() {
                       gap: 8,
                     }}
                   >
-                    Request a Call Back
+                    {sending ? "Sending…" : "Request a Call Back"}
                     <PhoneCall width={17} height={17} style={{ color: "#fff" }} />
                   </button>
                   <div

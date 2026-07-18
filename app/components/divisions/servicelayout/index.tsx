@@ -11,12 +11,19 @@ export type { ServiceConfig } from "./types";
 // Generic "service page" shell shared by every division page so they all match
 // the Documentation service page: breadcrumb hero + lead form, sticky TOC and a
 // sectioned article body. Content is supplied per division via `config`.
-export default function ServiceLayout({ config }: { config: ServiceConfig }) {
+export default function ServiceLayout({
+  config,
+  leadSource,
+}: {
+  config: ServiceConfig;
+  /** Overrides the "Submitted From" recorded on leads (defaults to the badge) */
+  leadSource?: string;
+}) {
   const tocItems = config.sections.map((s) => ({ id: s.id, label: s.label }));
 
   return (
     <div style={{ background: "#fff", color: "#16265C" }}>
-      <ServiceLayoutHero config={config} />
+      <ServiceLayoutHero config={config} leadSource={leadSource} />
       <section style={{ background: "#fff", padding: "0 28px 90px" }}>
         <div className={styles.bodyGrid}>
           <ServiceLayoutToc items={tocItems} helpPhone={config.helpPhone} />

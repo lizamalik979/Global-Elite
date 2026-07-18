@@ -5,11 +5,39 @@ import styles from "./aboutpage.module.css";
 import { ArrowRight, Check, Feather, Lock } from "./icons";
 import { resolveAboutIcon } from "./iconmap";
 import type { AboutPageContent } from "../../lib/cms";
+import { submitLead } from "../../lib/leads";
 
 const serif = "var(--font-playfair), Georgia, serif";
 
 export default function AboutHero({ hero }: { hero: AboutPageContent["hero"] }) {
   const [done, setDone] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [service, setService] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (sending) return;
+    setSending(true);
+    setError("");
+    const result = await submitLead({
+      name,
+      email,
+      phone,
+      source: "About page — Start your application",
+      extra: service ? { "Service Required": service } : {},
+    });
+    setSending(false);
+    if (result.ok) {
+      setDone(true);
+      setName(""); setEmail(""); setPhone(""); setService("");
+    } else {
+      setError(result.message);
+    }
+  };
   const chips = hero.chips.map((c) => ({
     ...c,
     Icon: resolveAboutIcon(c.icon),
@@ -325,10 +353,7 @@ export default function AboutHero({ hero }: { hero: AboutPageContent["hero"] }) 
                   </span>
                 </div>
                 <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setDone(true);
-                  }}
+                  onSubmit={handleSubmit}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -343,6 +368,8 @@ export default function AboutHero({ hero }: { hero: AboutPageContent["hero"] }) 
                       type="text"
                       required
                       placeholder="Your full name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                     />
                   </div>
                   <div className={styles.formTwoCol}>
@@ -353,6 +380,8 @@ export default function AboutHero({ hero }: { hero: AboutPageContent["hero"] }) 
                         type="email"
                         required
                         placeholder="you@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
                     <div>
@@ -362,6 +391,8 @@ export default function AboutHero({ hero }: { hero: AboutPageContent["hero"] }) 
                         type="tel"
                         required
                         placeholder="+91 00000 00000"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                       />
                     </div>
                   </div>
@@ -369,19 +400,29 @@ export default function AboutHero({ hero }: { hero: AboutPageContent["hero"] }) 
                     <Label>Service Required</Label>
                     <select
                       className={styles.input}
+                      value={service}
+                      onChange={(e) => setService(e.target.value)}
                       style={{ cursor: "pointer" }}
                     >
+                      <option value="" disabled>
+                        Select a service
+                      </option>
                       {hero.form.services.map((s) => (
                         <option key={s}>{s}</option>
                       ))}
                     </select>
                   </div>
+                  {error && (
+                    <p style={{ fontSize: 12.5, color: "#dc2626", fontWeight: 600, textAlign: "center" }}>{error}</p>
+                  )}
                   <button
                     type="submit"
+                    disabled={sending}
                     className={styles.btn}
                     style={{
                       marginTop: 4,
                       width: "100%",
+                      opacity: sending ? 0.7 : 1,
                       background: "linear-gradient(120deg,#E89B3A,#D26FA0,#8E5FB6)",
                       color: "#fff",
                       border: "none",
@@ -398,7 +439,7 @@ export default function AboutHero({ hero }: { hero: AboutPageContent["hero"] }) 
                       gap: 8,
                     }}
                   >
-                    Get My Free Quote
+                    {sending ? "Sending…" : "Get My Free Quote"}
                     <ArrowRight width={17} height={17} style={{ color: "#fff" }} />
                   </button>
                   <div
