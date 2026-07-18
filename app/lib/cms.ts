@@ -115,15 +115,25 @@ export type CmsPost = CmsPostSummary & {
   faq_items: { question: string; answer: string }[];
 };
 
-/** Published posts, newest first. Tagged `post-list` for on-demand refresh. */
-export async function getAllPosts(limit = 50): Promise<CmsPostSummary[]> {
+/**
+ * ALL published posts, newest first. The CMS API caps each page at 50, so we
+ * walk `hasNextPage` until every post is collected (safety cap: 20 pages =
+ * 1000 posts) — the listing, search and related articles always see the full
+ * set. Each page is cached 1h and tagged `post-list` for on-demand refresh.
+ */
+export async function getAllPosts(): Promise<CmsPostSummary[]> {
+  const posts: CmsPostSummary[] = [];
   try {
-    const res = await fetch(`${CMS_URL}/api/post/client/all-blog?page=1&limit=${limit}`, {
-      next: { revalidate: 3600, tags: ["post-list"] },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    const posts: CmsPostSummary[] = Array.isArray(data?.posts) ? data.posts : [];
+    for (let page = 1; page <= 20; page++) {
+      const res = await fetch(`${CMS_URL}/api/post/client/all-blog?page=${page}&limit=50`, {
+        next: { revalidate: 3600, tags: ["post-list"] },
+      });
+      if (!res.ok) break;
+      const data = await res.json();
+      const batch: CmsPostSummary[] = Array.isArray(data?.posts) ? data.posts : [];
+      posts.push(...batch);
+      if (!data?.pagination?.hasNextPage || batch.length === 0) break;
+    }
     // Newest publication first — the top post becomes the featured card
     return posts.sort(
       (a, b) =>
@@ -131,7 +141,8 @@ export async function getAllPosts(limit = 50): Promise<CmsPostSummary[]> {
         new Date(a.publishedAt ?? a.createdAt).getTime()
     );
   } catch {
-    return [];
+    // Return whatever pages were fetched before the failure
+    return posts;
   }
 }
 
@@ -197,6 +208,8 @@ export type PostCard = {
   author: string;
   initials: string;
   date: string;
+  /** Featured image URL — cards fall back to the gradient cover when null */
+  image: string | null;
 };
 
 export function toPostCard(p: CmsPostSummary, withYear = false): PostCard {
@@ -212,6 +225,7 @@ export function toPostCard(p: CmsPostSummary, withYear = false): PostCard {
     author,
     initials: initialsOf(author),
     date: formatPostDate(p.publishedAt ?? p.createdAt, withYear),
+    image: p.featuredImage || null,
   };
 }
 

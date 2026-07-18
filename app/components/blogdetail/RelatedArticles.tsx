@@ -59,20 +59,38 @@ export default function RelatedArticles({ posts }: { posts: PostCard[] }) {
                     overflow: "hidden",
                   }}
                 >
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      backgroundImage:
-                        "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 10px,transparent 10px,transparent 20px)",
-                    }}
-                  />
-                  <Icon
-                    width={42}
-                    height={42}
-                    className={styles.thumbIc}
-                    style={{ color: "rgba(255,255,255,.92)", position: "relative" }}
-                  />
+                  {r.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={r.image}
+                      alt={r.title}
+                      className={styles.thumbIc}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          backgroundImage:
+                            "repeating-linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 10px,transparent 10px,transparent 20px)",
+                        }}
+                      />
+                      <Icon
+                        width={42}
+                        height={42}
+                        className={styles.thumbIc}
+                        style={{ color: "rgba(255,255,255,.92)", position: "relative" }}
+                      />
+                    </>
+                  )}
                 </div>
                 <div style={{ padding: 20 }}>
                   <div style={{ fontSize: 12, color: "#8E4FA0", fontWeight: 700 }}>

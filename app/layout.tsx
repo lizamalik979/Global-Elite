@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Plus_Jakarta_Sans, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import TopProgressBar from "./components/TopProgressBar";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -43,6 +45,10 @@ export default function RootLayout({
       className={`${jakarta.variable} ${inter.variable} ${playfair.variable}`}
     >
       <body className="min-h-screen bg-background font-sans antialiased">
+        {/* Suspense: useSearchParams inside the bar must not block prerendering */}
+        <Suspense fallback={null}>
+          <TopProgressBar />
+        </Suspense>
         <Header />
         {children}
         <Footer />
