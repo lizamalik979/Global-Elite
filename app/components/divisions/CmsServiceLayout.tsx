@@ -63,6 +63,18 @@ export function serviceConfigFromCms(content: CmsServiceContent): ServiceConfig 
   };
 }
 
-export default function CmsServiceLayout({ content }: { content: CmsServiceContent }) {
-  return <ServiceLayout config={serviceConfigFromCms(content)} />;
+export default function CmsServiceLayout({
+  content,
+  slug,
+}: {
+  content: CmsServiceContent;
+  slug?: string;
+}) {
+  return (
+    <ServiceLayout
+      config={serviceConfigFromCms(content)}
+      // Include the URL so leads from pages sharing a badge stay distinguishable
+      leadSource={slug ? `${content.badge} page (/${slug})` : undefined}
+    />
+  );
 }

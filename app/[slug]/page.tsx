@@ -23,5 +23,5 @@ export default async function CmsServicePage({ params }: Props) {
   const { slug } = await params;
   const page = await getServicePage(slug);
   if (!page) notFound();
-  return <CmsServiceLayout content={page.content} />;
+  return <CmsServiceLayout content={page.content} slug={slug} />;
 }

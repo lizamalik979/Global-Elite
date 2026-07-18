@@ -5,6 +5,7 @@ import Link from "next/link";
 import styles from "./servicelayout.module.css";
 import type { ServiceConfig } from "./types";
 import { ArrowRight, ChevronDown, ChevronRight, Check } from "../icons";
+import { submitLead } from "../../../lib/leads";
 
 // Small inline icons only used by the hero.
 function Lock() {
@@ -43,8 +44,41 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export default function ServiceLayoutHero({ config }: { config: ServiceConfig }) {
+export default function ServiceLayoutHero({
+  config,
+  leadSource,
+}: {
+  config: ServiceConfig;
+  leadSource?: string;
+}) {
   const [done, setDone] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [choice, setChoice] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (sending) return;
+    setSending(true);
+    setError("");
+    const result = await submitLead({
+      name,
+      email,
+      phone,
+      source: leadSource ?? `${config.badge} page`,
+      extra: choice ? { [config.formCountryLabel ?? "Destination"]: choice } : {},
+    });
+    setSending(false);
+    if (result.ok) {
+      setDone(true);
+      setName(""); setPhone(""); setEmail(""); setChoice("");
+    } else {
+      setError(result.message);
+    }
+  };
   const BadgeIcon = config.badgeIcon;
 
   return (
@@ -156,22 +190,22 @@ export default function ServiceLayoutHero({ config }: { config: ServiceConfig })
                   {config.formTitle}
                 </h2>
                 <p style={{ fontSize: 13.5, color: "#64748b", marginTop: 5, lineHeight: 1.5 }}>{config.formSubtitle}</p>
-                <form onSubmit={(e) => { e.preventDefault(); setDone(true); }} style={{ display: "flex", flexDirection: "column", gap: 13, marginTop: 20 }}>
+                <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 13, marginTop: 20 }}>
                   <Field label="Full Name">
-                    <input className={styles.input} type="text" required placeholder="Your full name" />
+                    <input className={styles.input} type="text" required placeholder="Your full name" value={name} onChange={(e) => setName(e.target.value)} />
                   </Field>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                     <Field label="Phone">
-                      <input className={styles.input} type="tel" required placeholder="+91 00000 00000" />
+                      <input className={styles.input} type="tel" required placeholder="+91 00000 00000" value={phone} onChange={(e) => setPhone(e.target.value)} />
                     </Field>
                     <Field label="Email">
-                      <input className={styles.input} type="email" required placeholder="you@email.com" />
+                      <input className={styles.input} type="email" required placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                     </Field>
                   </div>
                   {config.formCountries && (
                     <Field label={config.formCountryLabel ?? "Destination"}>
                       <div style={{ position: "relative" }}>
-                        <select className={styles.input} defaultValue="" style={{ appearance: "none", WebkitAppearance: "none" }}>
+                        <select className={styles.input} value={choice} onChange={(e) => setChoice(e.target.value)} style={{ appearance: "none", WebkitAppearance: "none" }}>
                           <option value="" disabled>Select an option</option>
                           {config.formCountries.map((c) => (
                             <option key={c}>{c}</option>
@@ -181,8 +215,11 @@ export default function ServiceLayoutHero({ config }: { config: ServiceConfig })
                       </div>
                     </Field>
                   )}
-                  <button type="submit" className={styles.btn} style={{ width: "100%", marginTop: 4, background: "linear-gradient(120deg,#E89B3A,#D26FA0,#8E5FB6)", color: "#fff", border: "none", fontFamily: "inherit", fontWeight: 800, fontSize: 15, padding: 14, borderRadius: 12, cursor: "pointer", boxShadow: "0 14px 30px -12px rgba(142,79,160,.65)", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                    Request a Call Back
+                  {error && (
+                    <p style={{ fontSize: 12.5, color: "#dc2626", fontWeight: 600, textAlign: "center" }}>{error}</p>
+                  )}
+                  <button type="submit" disabled={sending} className={styles.btn} style={{ width: "100%", marginTop: 4, background: "linear-gradient(120deg,#E89B3A,#D26FA0,#8E5FB6)", color: "#fff", border: "none", fontFamily: "inherit", fontWeight: 800, fontSize: 15, padding: 14, borderRadius: 12, cursor: sending ? "wait" : "pointer", opacity: sending ? 0.7 : 1, boxShadow: "0 14px 30px -12px rgba(142,79,160,.65)", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    {sending ? "Sending…" : "Request a Call Back"}
                     <PhoneCall />
                   </button>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>

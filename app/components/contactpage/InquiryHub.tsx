@@ -4,6 +4,7 @@ import { useState } from "react";
 import styles from "./contactpage.module.css";
 import { ArrowRight, Check, ChevronDown, Lock } from "./icons";
 import type { ContactPageContent } from "../../lib/cms";
+import { submitLead } from "../../lib/leads";
 
 const labelStyle: React.CSSProperties = {
   fontSize: 12,
@@ -57,6 +58,60 @@ export default function InquiryHub({
 }) {
   const [tab, setTab] = useState<"quote" | "inquiry">("quote");
   const [done, setDone] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  // shared
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  // quote tab
+  const [phoneCode, setPhoneCode] = useState("+91");
+  const [phone, setPhone] = useState("");
+  const [documentType, setDocumentType] = useState(inquiry.documentTypes[0] ?? "");
+  const [destination, setDestination] = useState("");
+  const [details, setDetails] = useState("");
+  // inquiry tab
+  const [inquiryPhone, setInquiryPhone] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async () => {
+    if (sending) return;
+    setSending(true);
+    setError("");
+    const result =
+      tab === "quote"
+        ? await submitLead({
+            name,
+            email,
+            phone: `${phoneCode} ${phone}`.trim(),
+            source: "Contact — Request a Quote",
+            extra: {
+              "Document Type": documentType,
+              "Destination Country": destination,
+              "Additional Details": details,
+            },
+          })
+        : await submitLead({
+            name,
+            email,
+            phone: inquiryPhone,
+            source: "Contact — General Inquiry",
+            extra: { Subject: subject, Message: message },
+          });
+    setSending(false);
+    if (result.ok) {
+      setDone(true);
+      setName(""); setEmail(""); setPhone(""); setInquiryPhone("");
+      setDocumentType(""); setDestination(""); setDetails("");
+      setSubject(""); setMessage("");
+    } else {
+      setError(result.message);
+    }
+  };
+
+  const canSubmit =
+    name.trim() && email.trim() &&
+    (tab === "quote" ? phone.trim() : inquiryPhone.trim());
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
     fontFamily: "inherit",
@@ -154,6 +209,8 @@ export default function InquiryHub({
                       className={styles.input}
                       type="text"
                       placeholder="Your full name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                     />
                   </Field>
                   <div className={styles.twoCol}>
@@ -168,6 +225,8 @@ export default function InquiryHub({
                         >
                           <select
                             className={styles.input}
+                            value={phoneCode}
+                            onChange={(e) => setPhoneCode(e.target.value)}
                             style={{ ...selectStyle, padding: "12px 10px" }}
                           >
                             {inquiry.phoneCodes.map((c) => (
@@ -191,6 +250,8 @@ export default function InquiryHub({
                           className={styles.input}
                           type="tel"
                           placeholder="00000 00000"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
                           style={{ flex: 1, minWidth: 0 }}
                         />
                       </div>
@@ -200,13 +261,20 @@ export default function InquiryHub({
                         className={styles.input}
                         type="email"
                         placeholder="you@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </Field>
                   </div>
                   <div className={styles.twoCol}>
                     <Field label="Document Type">
                       <div style={{ position: "relative" }}>
-                        <select className={styles.input} style={selectStyle}>
+                        <select
+                          className={styles.input}
+                          value={documentType}
+                          onChange={(e) => setDocumentType(e.target.value)}
+                          style={selectStyle}
+                        >
                           {inquiry.documentTypes.map((t) => (
                             <option key={t}>{t}</option>
                           ))}
@@ -218,7 +286,8 @@ export default function InquiryHub({
                       <div style={{ position: "relative" }}>
                         <select
                           className={styles.input}
-                          defaultValue=""
+                          value={destination}
+                          onChange={(e) => setDestination(e.target.value)}
                           style={selectStyle}
                         >
                           <option value="" disabled>
@@ -246,6 +315,8 @@ export default function InquiryHub({
                       className={styles.input}
                       rows={3}
                       placeholder="Number of documents, urgency, pickup city..."
+                      value={details}
+                      onChange={(e) => setDetails(e.target.value)}
                       style={{ resize: "vertical" }}
                     />
                   </Field>
@@ -280,6 +351,8 @@ export default function InquiryHub({
                         className={styles.input}
                         type="text"
                         placeholder="Your full name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                       />
                     </Field>
                     <Field label="Email">
@@ -287,14 +360,27 @@ export default function InquiryHub({
                         className={styles.input}
                         type="email"
                         placeholder="you@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </Field>
                   </div>
+                  <Field label="Phone Number">
+                    <input
+                      className={styles.input}
+                      type="tel"
+                      placeholder="+91 00000 00000"
+                      value={inquiryPhone}
+                      onChange={(e) => setInquiryPhone(e.target.value)}
+                    />
+                  </Field>
                   <Field label="Subject">
                     <input
                       className={styles.input}
                       type="text"
                       placeholder="What is this about?"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
                     />
                   </Field>
                   <Field label="Message">
@@ -302,6 +388,8 @@ export default function InquiryHub({
                       className={styles.input}
                       rows={4}
                       placeholder="Write your message..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
                       style={{ resize: "vertical" }}
                     />
                   </Field>
@@ -309,13 +397,20 @@ export default function InquiryHub({
               </div>
             )}
 
+            {error && (
+              <p style={{ fontSize: 12.5, color: "#dc2626", fontWeight: 600, textAlign: "center", marginTop: 14 }}>
+                {error}
+              </p>
+            )}
             <button
               type="button"
-              onClick={() => setDone(true)}
+              disabled={sending || !canSubmit}
+              onClick={handleSubmit}
               className={styles.btn}
               style={{
                 width: "100%",
                 marginTop: 20,
+                opacity: sending || !canSubmit ? 0.6 : 1,
                 background: "linear-gradient(120deg,#E89B3A,#D26FA0,#8E5FB6)",
                 color: "#fff",
                 border: "none",
@@ -332,7 +427,7 @@ export default function InquiryHub({
                 gap: 8,
               }}
             >
-              {ctaLabel}
+              {sending ? "Sending…" : ctaLabel}
               <ArrowRight width={17} height={17} style={{ color: "#fff" }} />
             </button>
             <div
