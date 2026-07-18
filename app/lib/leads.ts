@@ -17,10 +17,39 @@ export type LeadSubmission = {
   extra?: Record<string, string>;
 };
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/**
+ * Client-side validation of the common fields (mirrored by the CMS lead API).
+ * Returns an error message to show the visitor, or null when valid.
+ */
+export function validateLead(lead: LeadSubmission): string | null {
+  if (lead.name.trim().length < 2) {
+    return "Please enter your full name (at least 2 characters).";
+  }
+  if (lead.name.trim().length > 100) {
+    return "Name is too long (max 100 characters).";
+  }
+  if (!EMAIL_RE.test(lead.email.trim()) || lead.email.trim().length > 254) {
+    return "Please enter a valid email address.";
+  }
+  const digits = lead.phone.replace(/[\s\-().]/g, "").replace(/^\+/, "");
+  if (!/^\d{7,15}$/.test(digits)) {
+    return "Please enter a valid phone number (7–15 digits).";
+  }
+  return null;
+}
+
 export async function submitLead(lead: LeadSubmission): Promise<{
   ok: boolean;
   message: string;
 }> {
+  // Validate before making the request — the backend re-checks the same rules
+  const validationError = validateLead(lead);
+  if (validationError) {
+    return { ok: false, message: validationError };
+  }
+
   try {
     // Drop empty extras so the CMS only stores what was actually filled in
     const extra = Object.fromEntries(
