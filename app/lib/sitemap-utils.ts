@@ -1,7 +1,19 @@
 // Shared helpers for the sitemap XML routes.
 
-/** Public URL of THIS website (not the CMS) — set SITE_URL in production. */
-export const SITE_URL = (process.env.SITE_URL || "http://localhost:3001").replace(/\/$/, "");
+/**
+ * Public URL of THIS website (not the CMS).
+ * Resolution order:
+ *  1. NEXT_PUBLIC_SITE_URL — set this in production (your real domain)
+ *  2. Vercel's own production domain (auto-provided on Vercel deployments)
+ *  3. localhost for local dev
+ */
+const vercelDomain =
+  process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (vercelDomain ? `https://${vercelDomain}` : "http://localhost:3001")
+).replace(/\/$/, "");
 
 const escapeXml = (s: string) =>
   s
