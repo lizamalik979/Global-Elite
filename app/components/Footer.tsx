@@ -4,42 +4,6 @@ import { getFooterMenu } from "../lib/cms";
 
 /* ---------- inline lucide-style icons ---------- */
 
-function MailIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <rect width="20" height="16" x="2" y="4" rx="2" />
-      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-    </svg>
-  );
-}
-
-function ArrowUpRight({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M7 7h10v10" />
-      <path d="M7 17 17 7" />
-    </svg>
-  );
-}
-
 function MapPin({ className }: { className?: string }) {
   return (
     <svg
@@ -187,28 +151,6 @@ export default async function Footer() {
             <p className="mt-6 max-w-[320px] text-[13.5px] leading-[1.6] text-[#9fb0d6]">
               {description}
             </p>
-
-            {/* Newsletter */}
-            <div className="mt-8">
-              <p className="text-[12px] font-bold tracking-[0.02em] text-white">
-                Subscribe to our newsletter
-              </p>
-              <div className="mt-3 flex h-12 w-full max-w-[330px] items-center rounded-[12px] border border-[#2c3f6e] bg-white/[0.07] pl-3.5 pr-[6px]">
-                <MailIcon className="size-[17px] shrink-0 text-[#9fb0d6]" />
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="ml-3 min-w-0 flex-1 bg-transparent text-[13.5px] text-white placeholder:text-[#757575] focus:outline-none"
-                />
-                <button
-                  type="button"
-                  className="gradient-cta flex h-[34px] shrink-0 items-center gap-1.5 rounded-[9px] px-3.5 text-[12.5px] font-bold text-white"
-                >
-                  Submit
-                  <ArrowUpRight className="size-[14px]" />
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* Link columns (from the CMS footer menu) */}

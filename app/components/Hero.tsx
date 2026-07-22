@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowRight, Star } from "./icons";
 import HeroFeatures from "./HeroFeatures";
+import LeadPopupButton from "./LeadPopup";
 
 export default function Hero() {
   return (
@@ -31,21 +32,21 @@ export default function Hero() {
 
             {/* Buttons */}
             <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-              <a
-                href="#"
+              <LeadPopupButton
+                source="Home page — View Demo"
                 className="flex h-[50px] items-center justify-center rounded-full border border-white/55 bg-white/15 px-8 text-[14.5px] font-bold tracking-wide text-white backdrop-blur-sm transition-colors hover:bg-white/25"
               >
                 View Demo
-              </a>
-              <a
-                href="#"
+              </LeadPopupButton>
+              <LeadPopupButton
+                source="Home page — Get Started (hero)"
                 className="gradient-cta flex h-[50px] items-center gap-3 rounded-full py-1 pl-7 pr-[7px] text-[14.5px] font-bold tracking-wide text-white shadow-[0_16px_17px_rgba(0,0,0,0.35)]"
               >
                 Get Started
                 <span className="grid size-9 place-items-center rounded-full bg-navy">
                   <ArrowRight className="size-[18px]" />
                 </span>
-              </a>
+              </LeadPopupButton>
             </div>
 
             {/* Rating */}
