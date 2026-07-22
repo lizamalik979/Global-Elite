@@ -1,3 +1,5 @@
+import LeadPopupButton from "./LeadPopup";
+
 export default function CTA() {
   return (
     <section className="py-12 lg:py-20">
@@ -44,8 +46,8 @@ export default function CTA() {
 
             {/* Right: action buttons */}
             <div className="flex shrink-0 flex-col gap-3.5 lg:w-[190px]">
-              <a
-                href="#"
+              <LeadPopupButton
+                source="Home page — Get Started (bottom CTA)"
                 className="flex h-14 w-full items-center justify-between rounded-full bg-white pl-[26px] pr-[9px] shadow-[0_16px_17px_rgba(8,20,54,0.25)] transition-transform hover:-translate-y-0.5"
               >
                 <span className="text-[15px] font-bold text-navy">
@@ -66,10 +68,10 @@ export default function CTA() {
                     <path d="M8 7h9v9" />
                   </svg>
                 </span>
-              </a>
+              </LeadPopupButton>
 
-              <a
-                href="#"
+              <LeadPopupButton
+                source="Home page — Talk to an agent"
                 className="flex h-[46px] w-full items-center justify-center gap-2.5 rounded-full border border-white/45 text-white transition-colors hover:bg-white/10"
               >
                 <svg
@@ -85,7 +87,7 @@ export default function CTA() {
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
                 </svg>
                 <span className="text-[14.5px] font-bold">Talk to an agent</span>
-              </a>
+              </LeadPopupButton>
             </div>
           </div>
         </div>

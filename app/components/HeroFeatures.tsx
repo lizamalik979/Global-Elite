@@ -1,5 +1,7 @@
 "use client";
 
+import LeadPopupButton from "./LeadPopup";
+
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { ArrowRight, HeartHandshake, Headset, Truck, Wrench } from "./icons";
@@ -83,12 +85,12 @@ export default function HeroFeatures() {
             <p className="mt-2.5 text-[13.5px] leading-[1.55] text-slate">
               {f.text}
             </p>
-            <a
-              href="#"
+            <LeadPopupButton
+              source={`Home page — ${f.title} card`}
               className="mt-6 grid size-10 place-items-center rounded-[10px] border-[1.5px] border-purple-100 text-navy transition-colors hover:bg-purple-50"
             >
               <ArrowRight className="size-[18px]" />
-            </a>
+            </LeadPopupButton>
           </div>
         ))}
       </div>

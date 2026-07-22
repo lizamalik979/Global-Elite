@@ -1,3 +1,4 @@
+import LeadPopupButton, { DOCUMENT_SERVICES } from "./LeadPopup";
 import type { ReactNode, SVGProps } from "react";
 
 /* ---------- lucide-style inline icons ---------- */
@@ -145,6 +146,13 @@ const plans: Plan[] = [
   },
 ];
 
+/* Map each plan to its "Service Required" dropdown option */
+const PLAN_SERVICE: Record<string, string> = {
+  "STATE PRE-VERIFICATION": "State Pre-Verification (HRD / SDM)",
+  "MEA APOSTILLE": "MEA Apostille",
+  "EMBASSY ATTESTATION": "Embassy Attestation",
+};
+
 /* ---------- cards ---------- */
 
 function PlainCard({ plan }: { plan: Plan }) {
@@ -193,12 +201,14 @@ function PlainCard({ plan }: { plan: Plan }) {
       </ul>
 
       {/* cta */}
-      <a
-        href="#"
+      <LeadPopupButton
+        source={`Home page — Pricing: ${plan.label}`}
+        services={DOCUMENT_SERVICES}
+        defaultService={PLAN_SERVICE[plan.label]}
         className="mt-6 flex h-[46.5px] items-center justify-center rounded-[12px] border-[1.5px] border-purple-500 text-[14px] font-bold text-purple-500 transition-colors hover:bg-purple-50"
       >
         {plan.cta}
-      </a>
+      </LeadPopupButton>
     </div>
   );
 }
@@ -257,12 +267,14 @@ function HighlightedCard({ plan }: { plan: Plan }) {
           ))}
         </ul>
 
-        <a
-          href="#"
-          className="mt-6 flex h-[47px] items-center justify-center rounded-[12px] bg-white text-[14px] font-bold text-purple-500 shadow-[0_12px_11px_rgba(0,0,0,0.3)] transition-colors hover:bg-purple-50"
+        <LeadPopupButton
+          source={`Home page — Pricing: ${plan.label}`}
+          services={DOCUMENT_SERVICES}
+          defaultService={PLAN_SERVICE[plan.label]}
+          className="mt-6 flex h-[47px] w-full items-center justify-center rounded-[12px] bg-white text-[14px] font-bold text-purple-500 shadow-[0_12px_11px_rgba(0,0,0,0.3)] transition-colors hover:bg-purple-50"
         >
           {plan.cta}
-        </a>
+        </LeadPopupButton>
       </div>
     </div>
   );
@@ -289,15 +301,16 @@ export default function Pricing() {
           </p>
 
           <div className="mt-7 flex justify-center">
-            <a
-              href="#"
+            <LeadPopupButton
+              source="Home page — Pricing section Get Started"
+              services={DOCUMENT_SERVICES}
               className="gradient-cta inline-flex items-center gap-3 rounded-full py-[6px] pl-6 pr-[6px] text-[13.5px] font-bold tracking-[0.27px] text-white shadow-[0_12px_13px_rgba(142,79,160,0.5)]"
             >
               GET STARTED
               <span className="grid size-[30px] place-items-center rounded-full bg-navy text-white">
                 <ArrowUpRight className="size-4" />
               </span>
-            </a>
+            </LeadPopupButton>
           </div>
         </div>
 

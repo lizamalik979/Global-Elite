@@ -1,3 +1,4 @@
+import LeadPopupButton, { PROCESS_SERVICES } from "./LeadPopup";
 import type { ReactNode } from "react";
 
 /* ---------- Inline lucide-style icons ---------- */
@@ -85,6 +86,13 @@ type Card = {
   cta: string;
   accent: boolean;
   badge: { label: string; tone: "gradient" | "navy" };
+};
+
+/* Map each process card to its preselected dropdown option */
+const PROCESS_SERVICE: Record<string, string> = {
+  "Basic Process": "Basic Process — Notary + SDM + MEA Apostille",
+  "Standard Process": "Standard Process — Notary + DM + Home Dept + MEA Apostille",
+  "Commercial Process": "Commercial Process — Notary + Chamber of Commerce + MEA Apostille",
 };
 
 const cards: Card[] = [
@@ -189,12 +197,14 @@ export default function Process() {
                   ))}
                 </ul>
 
-                <button
-                  type="button"
+                <LeadPopupButton
+                  source={`Home page — Apostille process: ${card.name}`}
+                  services={PROCESS_SERVICES}
+                  defaultService={PROCESS_SERVICE[card.name]}
                   className="mt-[26px] flex h-[47px] w-full items-center justify-center rounded-[12px] bg-white text-[14px] font-bold text-purple-500 shadow-[0_12px_11px_rgba(0,0,0,0.22)] transition-colors hover:bg-purple-50"
                 >
                   {card.cta}
-                </button>
+                </LeadPopupButton>
               </div>
             ) : (
               <div
@@ -239,12 +249,14 @@ export default function Process() {
                   ))}
                 </ul>
 
-                <button
-                  type="button"
+                <LeadPopupButton
+                  source={`Home page — Apostille process: ${card.name}`}
+                  services={PROCESS_SERVICES}
+                  defaultService={PROCESS_SERVICE[card.name]}
                   className="mt-[26px] flex h-[46.5px] w-full items-center justify-center rounded-[12px] border-[1.5px] border-purple-500 bg-white text-[14px] font-bold text-purple-500 transition-colors hover:bg-purple-50"
                 >
                   {card.cta}
-                </button>
+                </LeadPopupButton>
               </div>
             ),
           )}
