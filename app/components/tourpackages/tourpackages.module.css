@@ -1,0 +1,172 @@
+/* Holiday Tour Packages section — hover states, layout grids, the notch that
+   points from the opened card to its drop-down detail panel, and responsive
+   collapse. Inline styles cover the static look; this module carries what they
+   can't express. Ported from the source design. */
+
+.card {
+  transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1),
+    box-shadow 0.24s ease, border-color 0.24s ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  border-color: #cbb6dc !important;
+  box-shadow: 0 24px 44px -24px rgba(22, 38, 92, 0.42) !important;
+}
+.go {
+  transition: background 0.2s ease, color 0.2s ease, gap 0.2s ease;
+}
+.card:hover .go {
+  background: #8e4fa0 !important;
+  color: #fff !important;
+  gap: 9px;
+}
+.card:hover .band {
+  transform: scale(1.06);
+}
+.band {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.pill {
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+.pill:hover {
+  transform: translateY(-2px);
+}
+
+.day {
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.day:hover {
+  background: #fbf8fd;
+  border-color: #e2d5ee !important;
+}
+
+.x {
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+.x:hover {
+  background: rgba(255, 255, 255, 0.32) !important;
+  transform: rotate(90deg);
+}
+
+.detail {
+  animation: tpIn 0.36s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+@keyframes tpIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Two layouts: rows-of-three on desktop, a single column on mobile so the
+   detail panel can drop in directly beneath the tapped card. */
+.desktopRows {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+.mobileList {
+  display: none;
+  margin-top: 24px;
+}
+
+/* Layout grids */
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.body {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+}
+/* Let both columns shrink below their content's intrinsic width so text wraps
+   (and the itinerary carousel scrolls) instead of overflowing the panel, which
+   has overflow:hidden and would otherwise clip everything on the right. */
+.body > * {
+  min-width: 0;
+}
+.dayGrid {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 14px;
+}
+
+/* Itinerary + stats: stacked on desktop, horizontal swipe carousels on mobile
+   so the detail panel doesn't get very tall. */
+.itin {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 16px;
+}
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 640px) {
+  .itin {
+    flex-direction: row;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .itin::-webkit-scrollbar {
+    display: none;
+  }
+  .itin > .day {
+    flex: 0 0 84%;
+    scroll-snap-align: start;
+  }
+
+  .statGrid {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .statGrid::-webkit-scrollbar {
+    display: none;
+  }
+  .statGrid > * {
+    flex: 0 0 46%;
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 900px) {
+  .desktopRows {
+    display: none;
+  }
+  .mobileList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .row {
+    grid-template-columns: 1fr;
+  }
+  .body {
+    grid-template-columns: 1fr !important;
+  }
+  .notch {
+    display: none !important;
+  }
+}
+
