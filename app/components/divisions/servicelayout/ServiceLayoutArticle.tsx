@@ -5,6 +5,8 @@ import styles from "./servicelayout.module.css";
 import type { Section } from "./types";
 import { Check } from "../icons";
 import FaqBlock from "./FaqBlock";
+import TourPackages from "../../tourpackages";
+import type { PackagesConfig } from "../../tourpackages/data";
 
 const jakarta = "var(--font-jakarta), sans-serif";
 
@@ -224,15 +226,62 @@ function renderSection(s: Section) {
   }
 }
 
-export default function ServiceLayoutArticle({ sections }: { sections: Section[] }) {
+/**
+ * Where CMS package blocks are injected: immediately after the 2nd content
+ * section. Pages with fewer than two sections get them after the last one
+ * rather than losing them entirely.
+ */
+export function packageInjectIndex(sectionCount: number): number {
+  return Math.min(2, sectionCount);
+}
+
+export default function ServiceLayoutArticle({
+  sections,
+  packages = [],
+  leadSource,
+}: {
+  sections: Section[];
+  /** Package blocks the CMS targets at this page */
+  packages?: PackagesConfig[];
+  leadSource?: string;
+}) {
+  const injectAt = packageInjectIndex(sections.length);
+
+  const blocks: { key: string; node: ReactNode }[] = [];
+
+  const pushPackages = () => {
+    for (const cfg of packages) {
+      blocks.push({
+        key: `pkg-${cfg.anchorId}`,
+        node: (
+          <div id={`sec-${cfg.anchorId}`} style={{ scrollMarginTop: 150 }}>
+            <TourPackages config={cfg} leadSource={leadSource} />
+          </div>
+        ),
+      });
+    }
+  };
+
+  sections.forEach((s, i) => {
+    if (i === injectAt) pushPackages();
+    blocks.push({
+      key: `sec-${s.id}`,
+      node: (
+        <div id={`sec-${s.id}`} style={{ scrollMarginTop: 150 }}>
+          {renderSection(s)}
+        </div>
+      ),
+    });
+  });
+  // Covers "fewer sections than the inject point" (and the no-sections case)
+  if (injectAt >= sections.length) pushPackages();
+
   return (
     <article style={{ paddingTop: 44, minWidth: 0 }}>
-      {sections.map((s, i) => (
-        <div key={s.id}>
-          <div id={`sec-${s.id}`} style={{ scrollMarginTop: 150 }}>
-            {renderSection(s)}
-          </div>
-          {i !== sections.length - 1 && <Divider />}
+      {blocks.map((b, i) => (
+        <div key={b.key}>
+          {b.node}
+          {i !== blocks.length - 1 && <Divider />}
         </div>
       ))}
     </article>

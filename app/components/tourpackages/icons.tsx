@@ -181,6 +181,7 @@ export const Tent = (p: IconProps) => (
 
 // Map from a string key (used in data) to the icon component.
 export const ICONS = {
+  plane: Plane,
   "building-2": Building2,
   palmtree: Palmtree,
   "ferris-wheel": FerrisWheel,

@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+// Renders a CMS-managed package block. The CMS stores the whole block as JSON
+// with icons and gradients as string keys (serializable across the
+// server/client boundary); this component resolves those keys back to the local
+// icon components and brand gradients.
+
+import { useEffect, useMemo, useState } from "react";
 import styles from "./tourpackages.module.css";
-import { TOURS, type TourPackage } from "./data";
+import { resolveBand, type PackagesConfig, type TourPackage } from "./data";
+import { submitLead } from "../../lib/leads";
 import {
   Check,
   ChevronDown,
@@ -12,24 +18,24 @@ import {
   Eye,
   ICONS,
   PhoneCall,
-  Plane,
   Route,
   ShieldCheck,
   X,
+  type IconKey,
 } from "./icons";
 
-// Every unique region across both tabs — used to populate the enquiry form's
-// Region dropdown (pre-selected to the package you opened).
-const ALL_REGIONS: string[] = Array.from(
-  new Set([...TOURS.intl, ...TOURS.dom].map((t) => t.region))
-);
-
-type TabId = "intl" | "dom";
-
-const tabs: { id: TabId; label: string }[] = [
-  { id: "intl", label: "International" },
-  { id: "dom", label: "Domestic" },
-];
+/**
+ * Renders the icon a CMS block names by key ("palmtree"), falling back to the
+ * plane. Resolving inside a component — rather than assigning the component to
+ * a local during render — keeps the icon element's identity stable.
+ */
+function PkgIcon({
+  name,
+  ...props
+}: { name: string | undefined } & React.SVGProps<SVGSVGElement>) {
+  const Icon = name && name in ICONS ? ICONS[name as IconKey] : ICONS.plane;
+  return <Icon {...props} />;
+}
 
 function chunk<T>(arr: T[], size: number): T[][] {
   const out: T[][] = [];
@@ -37,18 +43,40 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
-export default function TourPackages() {
-  const [tab, setTab] = useState<TabId>("intl");
+export default function TourPackages({
+  config,
+  leadSource,
+}: {
+  config: PackagesConfig;
+  /** Recorded as "Submitted From" on leads from this block */
+  leadSource?: string;
+}) {
+  const tabs = config.tabs;
+  const [tabId, setTabId] = useState<string>(tabs[0]?.id ?? "");
   const [openId, setOpenId] = useState<string | null>(null);
   // When set, the enquiry popup is open, pre-filled with this package's region.
-  const [enquiry, setEnquiry] = useState<{
-    region: string;
-    title: string;
-  } | null>(null);
+  const [enquiry, setEnquiry] = useState<{ region: string; title: string } | null>(null);
 
-  const list = TOURS[tab];
+  // Every unique region across all tabs — populates the enquiry form's Region
+  // dropdown (pre-selected to the package you opened).
+  const allRegions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          tabs.flatMap((t) => t.packages.map((p) => p.region)).filter(Boolean)
+        )
+      ),
+    [tabs]
+  );
+
+  const activeTab = tabs.find((t) => t.id === tabId) ?? tabs[0];
+  if (!activeTab) return null;
+
+  const list = activeTab.packages;
   const rows = chunk(list, 3);
 
+  // The host page supplies the `sec-<anchorId>` wrapper the table of contents
+  // scrolls to, so this section carries no id of its own.
   return (
     <section style={{ background: "#fff", padding: "0 4px" }}>
       {/* header */}
@@ -62,94 +90,98 @@ export default function TourPackages() {
         }}
       >
         <div>
+          {config.badge && (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                background: "#F4ECFA",
+                border: "1px solid #e6d8f0",
+                borderRadius: 999,
+                padding: "5px 12px",
+                fontSize: 10.5,
+                fontWeight: 800,
+                letterSpacing: ".12em",
+                color: "#8E4FA0",
+              }}
+            >
+              <PkgIcon name={config.badgeIcon} width={13} height={13} style={{ color: "#8E4FA0" }} />
+              {config.badge}
+            </div>
+          )}
+          {config.heading && (
+            <h2
+              style={{
+                fontFamily: "var(--font-jakarta), sans-serif",
+                fontSize: "clamp(24px, 5vw, 30px)",
+                fontWeight: 800,
+                letterSpacing: "-.02em",
+                color: "#16265C",
+                marginTop: 12,
+              }}
+            >
+              {config.heading}
+            </h2>
+          )}
+          {config.subtitle && (
+            <p
+              style={{
+                fontSize: 15,
+                color: "#64748b",
+                lineHeight: 1.65,
+                fontWeight: 500,
+                marginTop: 8,
+                maxWidth: 560,
+              }}
+            >
+              {config.subtitle}
+            </p>
+          )}
+        </div>
+
+        {/* tab switch — hidden when the block has only one tab */}
+        {tabs.length > 1 && (
           <div
             style={{
               display: "inline-flex",
-              alignItems: "center",
-              gap: 7,
               background: "#F4ECFA",
               border: "1px solid #e6d8f0",
-              borderRadius: 999,
-              padding: "5px 12px",
-              fontSize: 10.5,
-              fontWeight: 800,
-              letterSpacing: ".12em",
-              color: "#8E4FA0",
+              borderRadius: 13,
+              padding: 4,
+              gap: 4,
             }}
           >
-            <Plane width={13} height={13} style={{ color: "#8E4FA0" }} />
-            INTERNATIONAL &amp; DOMESTIC TOURISM
+            {tabs.map((t) => {
+              const on = activeTab.id === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => {
+                    setTabId(t.id);
+                    setOpenId(null);
+                  }}
+                  className={styles.pill}
+                  style={{
+                    border: "none",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    padding: "9px 18px",
+                    borderRadius: 10,
+                    background: on ? "#fff" : "transparent",
+                    color: on ? "#16265C" : "#8E4FA0",
+                    boxShadow: on ? "0 4px 12px -6px rgba(22,38,92,.35)" : "none",
+                  }}
+                >
+                  {t.label}
+                </button>
+              );
+            })}
           </div>
-          <h2
-            style={{
-              fontFamily: "var(--font-jakarta), sans-serif",
-              fontSize: "clamp(24px, 5vw, 30px)",
-              fontWeight: 800,
-              letterSpacing: "-.02em",
-              color: "#16265C",
-              marginTop: 12,
-            }}
-          >
-            Holiday Tour Packages
-          </h2>
-          <p
-            style={{
-              fontSize: 15,
-              color: "#64748b",
-              lineHeight: 1.65,
-              fontWeight: 500,
-              marginTop: 8,
-              maxWidth: 560,
-            }}
-          >
-            Tap any package and its full itinerary{" "}
-            <b style={{ color: "#16265C", fontWeight: 700 }}>
-              drops down right below it
-            </b>{" "}
-            — the list stays put, nothing opens in a new page.
-          </p>
-        </div>
-
-        {/* tab switch */}
-        <div
-          style={{
-            display: "inline-flex",
-            background: "#F4ECFA",
-            border: "1px solid #e6d8f0",
-            borderRadius: 13,
-            padding: 4,
-            gap: 4,
-          }}
-        >
-          {tabs.map((t) => {
-            const on = tab === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => {
-                  setTab(t.id);
-                  setOpenId(null);
-                }}
-                className={styles.pill}
-                style={{
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  padding: "9px 18px",
-                  borderRadius: 10,
-                  background: on ? "#fff" : "transparent",
-                  color: on ? "#16265C" : "#8E4FA0",
-                  boxShadow: on ? "0 4px 12px -6px rgba(22,38,92,.35)" : "none",
-                }}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
+        )}
       </div>
 
       {/* DESKTOP: rows of three, the detail panel drops below the whole row
@@ -160,25 +192,19 @@ export default function TourPackages() {
           const openTour = openIdx >= 0 ? row[openIdx] : null;
           // Notch x-position: centre of the opened column in a 3-col grid with
           // 16px gaps, minus half the 22px-wide triangle.
-          const notchLeft = `calc((100% - 32px) * ${(
-            openIdx / 3 +
-            1 / 6
-          ).toFixed(5)} + ${openIdx * 16 - 11}px)`;
+          const notchLeft = `calc((100% - 32px) * ${(openIdx / 3 + 1 / 6).toFixed(
+            5
+          )} + ${openIdx * 16 - 11}px)`;
 
           return (
-            <div
-              key={ri}
-              style={{ display: "flex", flexDirection: "column", gap: 16 }}
-            >
+            <div key={ri} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div className={styles.row}>
                 {row.map((p) => (
                   <TourCard
                     key={p.id}
                     p={p}
                     open={openId === p.id}
-                    onToggle={() =>
-                      setOpenId((cur) => (cur === p.id ? null : p.id))
-                    }
+                    onToggle={() => setOpenId((cur) => (cur === p.id ? null : p.id))}
                   />
                 ))}
               </div>
@@ -199,12 +225,10 @@ export default function TourPackages() {
                   />
                   <TourDetail
                     tour={openTour}
+                    config={config}
                     onClose={() => setOpenId(null)}
                     onEnquire={() =>
-                      setEnquiry({
-                        region: openTour.region,
-                        title: openTour.title,
-                      })
+                      setEnquiry({ region: openTour.region, title: openTour.title })
                     }
                   />
                 </>
@@ -218,10 +242,7 @@ export default function TourPackages() {
           tapped card, not below the row. */}
       <div className={styles.mobileList}>
         {list.map((p) => (
-          <div
-            key={p.id}
-            style={{ display: "flex", flexDirection: "column", gap: 16 }}
-          >
+          <div key={p.id} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <TourCard
               p={p}
               open={openId === p.id}
@@ -230,10 +251,9 @@ export default function TourPackages() {
             {openId === p.id && (
               <TourDetail
                 tour={p}
+                config={config}
                 onClose={() => setOpenId(null)}
-                onEnquire={() =>
-                  setEnquiry({ region: p.region, title: p.title })
-                }
+                onEnquire={() => setEnquiry({ region: p.region, title: p.title })}
               />
             )}
           </div>
@@ -244,6 +264,9 @@ export default function TourPackages() {
         <EnquiryModal
           region={enquiry.region}
           title={enquiry.title}
+          regions={allRegions}
+          config={config}
+          leadSource={leadSource}
           onClose={() => setEnquiry(null)}
         />
       )}
@@ -262,7 +285,6 @@ function TourCard({
   open: boolean;
   onToggle: () => void;
 }) {
-  const BandIcon = ICONS[p.icon];
   return (
     <button
       type="button"
@@ -288,7 +310,7 @@ function TourCard({
       <div style={{ height: 104, overflow: "hidden", position: "relative" }}>
         <div
           className={styles.band}
-          style={{ position: "absolute", inset: 0, background: p.band }}
+          style={{ position: "absolute", inset: 0, background: resolveBand(p.band) }}
         />
         <span
           style={{
@@ -299,24 +321,26 @@ function TourCard({
             color: "rgba(255,255,255,.22)",
           }}
         >
-          <BandIcon width={78} height={78} />
+          <PkgIcon name={p.icon} width={78} height={78} />
         </span>
-        <div
-          style={{
-            position: "absolute",
-            top: 11,
-            left: 12,
-            background: "rgba(255,255,255,.92)",
-            borderRadius: 7,
-            padding: "4px 9px",
-            fontSize: 10.5,
-            fontWeight: 800,
-            color: "#16265C",
-            letterSpacing: ".02em",
-          }}
-        >
-          {p.duration}
-        </div>
+        {p.duration && (
+          <div
+            style={{
+              position: "absolute",
+              top: 11,
+              left: 12,
+              background: "rgba(255,255,255,.92)",
+              borderRadius: 7,
+              padding: "4px 9px",
+              fontSize: 10.5,
+              fontWeight: 800,
+              color: "#16265C",
+              letterSpacing: ".02em",
+            }}
+          >
+            {p.duration}
+          </div>
+        )}
         <div
           style={{
             position: "absolute",
@@ -375,16 +399,11 @@ function TourCard({
         >
           {p.title}
         </div>
-        <div
-          style={{
-            fontSize: 12.5,
-            color: "#8E4FA0",
-            fontWeight: 600,
-            marginTop: 5,
-          }}
-        >
-          Best season · {p.season}
-        </div>
+        {p.season && (
+          <div style={{ fontSize: 12.5, color: "#8E4FA0", fontWeight: 600, marginTop: 5 }}>
+            Best season · {p.season}
+          </div>
+        )}
         <div
           style={{
             display: "flex",
@@ -433,11 +452,7 @@ function TourCard({
             }}
           >
             {open ? "Close" : "Details"}
-            {open ? (
-              <ChevronUp width={14} height={14} />
-            ) : (
-              <ChevronDown width={14} height={14} />
-            )}
+            {open ? <ChevronUp width={14} height={14} /> : <ChevronDown width={14} height={14} />}
           </span>
         </div>
       </div>
@@ -449,14 +464,16 @@ function TourCard({
 
 function TourDetail({
   tour,
+  config,
   onClose,
   onEnquire,
 }: {
   tour: TourPackage;
+  config: PackagesConfig;
   onClose: () => void;
   onEnquire: () => void;
 }) {
-  const HeadIcon = ICONS[tour.icon];
+  const band = resolveBand(tour.band);
   return (
     <div
       className={styles.detail}
@@ -473,7 +490,7 @@ function TourDetail({
         style={{
           position: "relative",
           overflow: "hidden",
-          background: tour.band,
+          background: band,
           padding: "24px 26px",
         }}
       >
@@ -486,7 +503,7 @@ function TourDetail({
             color: "rgba(255,255,255,.15)",
           }}
         >
-          <HeadIcon width={150} height={150} />
+          <PkgIcon name={tour.icon} width={150} height={150} />
         </span>
         <div
           style={{
@@ -499,9 +516,9 @@ function TourDetail({
         >
           <div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              <Tag solid>{tour.region}</Tag>
-              <Tag>{tour.duration}</Tag>
-              <Tag>Best · {tour.season}</Tag>
+              {tour.region && <Tag solid>{tour.region}</Tag>}
+              {tour.duration && <Tag>{tour.duration}</Tag>}
+              {tour.season && <Tag>Best · {tour.season}</Tag>}
             </div>
             <h3
               style={{
@@ -515,18 +532,20 @@ function TourDetail({
             >
               {tour.title}
             </h3>
-            <p
-              style={{
-                fontSize: 14,
-                color: "rgba(255,255,255,.92)",
-                fontWeight: 500,
-                lineHeight: 1.6,
-                marginTop: 7,
-                maxWidth: 600,
-              }}
-            >
-              {tour.summary}
-            </p>
+            {tour.summary && (
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "rgba(255,255,255,.92)",
+                  fontWeight: 500,
+                  lineHeight: 1.6,
+                  marginTop: 7,
+                  maxWidth: 600,
+                }}
+              >
+                {tour.summary}
+              </p>
+            )}
           </div>
           <button
             type="button"
@@ -555,102 +574,107 @@ function TourDetail({
       <div className={styles.body}>
         {/* left: itinerary + stats */}
         <div style={{ padding: "24px 26px", borderRight: "1px solid #f0e9f6" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-            <Route width={17} height={17} style={{ color: "#8E4FA0" }} />
-            <div style={{ fontSize: 15.5, fontWeight: 800, color: "#16265C" }}>
-              Day-by-day itinerary
-            </div>
-          </div>
-          <div className={styles.itin}>
-            {tour.itinerary.map((d) => (
-              <div
-                key={d.d + d.t}
-                className={`${styles.day} ${styles.dayGrid}`}
-                style={{
-                  border: "1px solid #f0e9f6",
-                  borderRadius: 12,
-                  padding: "13px 14px",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: "#8E4FA0",
-                    letterSpacing: ".05em",
-                    paddingTop: 2,
-                  }}
-                >
-                  {d.d}
-                </div>
-                <div>
-                  <div
-                    style={{
-                      fontSize: 14.5,
-                      fontWeight: 700,
-                      color: "#16265C",
-                      lineHeight: 1.35,
-                    }}
-                  >
-                    {d.t}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 13.5,
-                      color: "#64748b",
-                      fontWeight: 500,
-                      lineHeight: 1.6,
-                      marginTop: 4,
-                    }}
-                  >
-                    {d.x}
-                  </div>
+          {tour.itinerary.length > 0 && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                <Route width={17} height={17} style={{ color: "#8E4FA0" }} />
+                <div style={{ fontSize: 15.5, fontWeight: 800, color: "#16265C" }}>
+                  {config.itineraryTitle}
                 </div>
               </div>
-            ))}
-          </div>
+              <div className={styles.itin}>
+                {tour.itinerary.map((d, i) => (
+                  <div
+                    key={`${d.d}-${i}`}
+                    className={`${styles.day} ${styles.dayGrid}`}
+                    style={{
+                      border: "1px solid #f0e9f6",
+                      borderRadius: 12,
+                      padding: "13px 14px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 800,
+                        color: "#8E4FA0",
+                        letterSpacing: ".05em",
+                        paddingTop: 2,
+                      }}
+                    >
+                      {d.d}
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: 14.5,
+                          fontWeight: 700,
+                          color: "#16265C",
+                          lineHeight: 1.35,
+                        }}
+                      >
+                        {d.t}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 13.5,
+                          color: "#64748b",
+                          fontWeight: 500,
+                          lineHeight: 1.6,
+                          marginTop: 4,
+                        }}
+                      >
+                        {d.x}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
-          <div className={styles.statGrid}>
-            {tour.stats.map((st) => {
-              const StatIcon = ICONS[st.icon];
-              return (
-                <div
-                  key={st.k}
-                  style={{
-                    background: "#F7F3FA",
-                    border: "1px solid #efe6f7",
-                    borderRadius: 12,
-                    padding: "12px 13px",
-                  }}
-                >
-                  <span style={{ display: "block", lineHeight: 0 }}>
-                    <StatIcon width={16} height={16} style={{ color: "#8E4FA0" }} />
-                  </span>
+          {tour.stats.length > 0 && (
+            <div className={styles.statGrid}>
+              {tour.stats.map((st, i) => {
+                return (
                   <div
+                    key={`${st.k}-${i}`}
                     style={{
-                      fontSize: 13.5,
-                      fontWeight: 800,
-                      color: "#16265C",
-                      marginTop: 7,
-                      lineHeight: 1.3,
+                      background: "#F7F3FA",
+                      border: "1px solid #efe6f7",
+                      borderRadius: 12,
+                      padding: "12px 13px",
                     }}
                   >
-                    {st.v}
+                    <span style={{ display: "block", lineHeight: 0 }}>
+                      <PkgIcon name={st.icon} width={16} height={16} style={{ color: "#8E4FA0" }} />
+                    </span>
+                    <div
+                      style={{
+                        fontSize: 13.5,
+                        fontWeight: 800,
+                        color: "#16265C",
+                        marginTop: 7,
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {st.v}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11.5,
+                        color: "#8395ab",
+                        fontWeight: 600,
+                        marginTop: 2,
+                      }}
+                    >
+                      {st.k}
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: 11.5,
-                      color: "#8395ab",
-                      fontWeight: 600,
-                      marginTop: 2,
-                    }}
-                  >
-                    {st.k}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* right: price + CTAs + includes + docs */}
@@ -665,14 +689,7 @@ function TourDetail({
           >
             STARTING FROM
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 10,
-              marginTop: 6,
-            }}
-          >
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 6 }}>
             <div
               style={{
                 fontSize: 33,
@@ -683,27 +700,24 @@ function TourDetail({
             >
               {tour.price}
             </div>
-            <div
-              style={{
-                fontSize: 15,
-                color: "#a0aec0",
-                textDecoration: "line-through",
-                fontWeight: 600,
-              }}
-            >
-              {tour.old}
+            {tour.old && (
+              <div
+                style={{
+                  fontSize: 15,
+                  color: "#a0aec0",
+                  textDecoration: "line-through",
+                  fontWeight: 600,
+                }}
+              >
+                {tour.old}
+              </div>
+            )}
+          </div>
+          {config.priceNote && (
+            <div style={{ fontSize: 12.5, color: "#64748b", fontWeight: 600, marginTop: 3 }}>
+              {config.priceNote}
             </div>
-          </div>
-          <div
-            style={{
-              fontSize: 12.5,
-              color: "#64748b",
-              fontWeight: 600,
-              marginTop: 3,
-            }}
-          >
-            per person · twin sharing · taxes extra
-          </div>
+          )}
 
           <button
             type="button"
@@ -728,114 +742,106 @@ function TourDetail({
             }}
           >
             <PhoneCall width={16} height={16} style={{ color: "#fff" }} />
-            Enquire about this package
+            {config.enquireCta}
           </button>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              justifyContent: "center",
-              marginTop: 10,
-              fontSize: 11.5,
-              color: "#8395ab",
-              fontWeight: 600,
-            }}
-          >
-            <Clock width={13} height={13} style={{ color: "#8E4FA0" }} />
-            Callback within 30 minutes
-          </div>
-
-          <div style={{ height: 1, background: "#efe6f7", margin: "20px 0" }} />
-
-          <div
-            style={{
-              fontSize: 13,
-              fontWeight: 800,
-              color: "#16265C",
-              letterSpacing: ".01em",
-            }}
-          >
-            What&apos;s included
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 9,
-              marginTop: 11,
-            }}
-          >
-            {tour.includes.map((inc) => (
-              <div
-                key={inc}
-                style={{ display: "flex", gap: 9, alignItems: "flex-start" }}
-              >
-                <Check
-                  width={15}
-                  height={15}
-                  style={{ color: "#8E4FA0", flexShrink: 0, marginTop: 2 }}
-                />
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: "#475569",
-                    fontWeight: 600,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {inc}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div
-            style={{
-              marginTop: 20,
-              background: "linear-gradient(150deg,#16265C,#3a2566)",
-              borderRadius: 14,
-              padding: "16px 17px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <ShieldCheck width={16} height={16} style={{ color: "#E5A93A" }} />
-              <div style={{ fontSize: 12.5, fontWeight: 800, color: "#fff" }}>
-                {tour.docsTitle}
-              </div>
-            </div>
+          {config.callbackNote && (
             <div
               style={{
                 display: "flex",
-                flexDirection: "column",
-                gap: 7,
-                marginTop: 11,
+                alignItems: "center",
+                gap: 6,
+                justifyContent: "center",
+                marginTop: 10,
+                fontSize: 11.5,
+                color: "#8395ab",
+                fontWeight: 600,
               }}
             >
-              {tour.docs.map((dc) => (
-                <div
-                  key={dc}
-                  style={{ display: "flex", gap: 8, alignItems: "flex-start" }}
-                >
-                  <Dot
-                    width={14}
-                    height={14}
-                    style={{ color: "#E5A93A", flexShrink: 0, marginTop: 2 }}
-                  />
-                  <div
-                    style={{
-                      fontSize: 12.5,
-                      color: "#c9b6e8",
-                      fontWeight: 600,
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {dc}
-                  </div>
-                </div>
-              ))}
+              <Clock width={13} height={13} style={{ color: "#8E4FA0" }} />
+              {config.callbackNote}
             </div>
-          </div>
+          )}
+
+          {tour.includes.length > 0 && (
+            <>
+              <div style={{ height: 1, background: "#efe6f7", margin: "20px 0" }} />
+
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 800,
+                  color: "#16265C",
+                  letterSpacing: ".01em",
+                }}
+              >
+                {config.includesTitle}
+              </div>
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 11 }}
+              >
+                {tour.includes.map((inc) => (
+                  <div key={inc} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
+                    <Check
+                      width={15}
+                      height={15}
+                      style={{ color: "#8E4FA0", flexShrink: 0, marginTop: 2 }}
+                    />
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "#475569",
+                        fontWeight: 600,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {inc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {tour.docs.length > 0 && (
+            <div
+              style={{
+                marginTop: 20,
+                background: "linear-gradient(150deg,#16265C,#3a2566)",
+                borderRadius: 14,
+                padding: "16px 17px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <ShieldCheck width={16} height={16} style={{ color: "#E5A93A" }} />
+                <div style={{ fontSize: 12.5, fontWeight: 800, color: "#fff" }}>
+                  {tour.docsTitle}
+                </div>
+              </div>
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 11 }}
+              >
+                {tour.docs.map((dc) => (
+                  <div key={dc} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                    <Dot
+                      width={14}
+                      height={14}
+                      style={{ color: "#E5A93A", flexShrink: 0, marginTop: 2 }}
+                    />
+                    <div
+                      style={{
+                        fontSize: 12.5,
+                        color: "#c9b6e8",
+                        fontWeight: 600,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {dc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -909,13 +915,27 @@ function ModalField({
 function EnquiryModal({
   region,
   title,
+  regions,
+  config,
+  leadSource,
   onClose,
 }: {
   region: string;
   title: string;
+  regions: string[];
+  config: PackagesConfig;
+  leadSource?: string;
   onClose: () => void;
 }) {
   const [done, setDone] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    region: region || regions[0] || "",
+  });
 
   // Lock body scroll + close on Escape while the popup is open.
   useEffect(() => {
@@ -930,6 +950,30 @@ function EnquiryModal({
       window.removeEventListener("keydown", onKey);
     };
   }, [onClose]);
+
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (sending) return;
+    setSending(true);
+    setError(null);
+
+    // The package and region travel as form-specific fields, so the lead in the
+    // CMS says exactly which package was being viewed.
+    const res = await submitLead({
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      source: leadSource || `Packages — ${config.heading || "Package block"}`,
+      extra: { Package: title, Region: form.region },
+    });
+
+    setSending(false);
+    if (res.ok) {
+      setDone(true);
+    } else {
+      setError(res.message);
+    }
+  };
 
   return (
     <div
@@ -998,7 +1042,7 @@ function EnquiryModal({
               color: "#E5A93A",
             }}
           >
-            GET A CALLBACK
+            {config.enquiry.kicker}
           </div>
           <div
             style={{
@@ -1019,10 +1063,7 @@ function EnquiryModal({
         <div style={{ padding: "22px 24px 24px" }}>
           {!done ? (
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setDone(true);
-              }}
+              onSubmit={handleSubmit}
               style={{ display: "flex", flexDirection: "column", gap: 13 }}
             >
               <ModalField label="Name">
@@ -1030,6 +1071,8 @@ function EnquiryModal({
                   style={modalInput}
                   type="text"
                   required
+                  value={form.name}
+                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                   placeholder="Your full name"
                 />
               </ModalField>
@@ -1038,13 +1081,16 @@ function EnquiryModal({
                   style={modalInput}
                   type="tel"
                   required
+                  value={form.phone}
+                  onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
                   placeholder="+91 00000 00000"
                 />
               </ModalField>
-              <ModalField label="Region">
+              <ModalField label={config.enquiry.regionLabel}>
                 <div style={{ position: "relative" }}>
                   <select
-                    defaultValue={region}
+                    value={form.region}
+                    onChange={(e) => setForm((p) => ({ ...p, region: e.target.value }))}
                     style={{
                       ...modalInput,
                       appearance: "none",
@@ -1052,7 +1098,7 @@ function EnquiryModal({
                       cursor: "pointer",
                     }}
                   >
-                    {ALL_REGIONS.map((r) => (
+                    {regions.map((r) => (
                       <option key={r} value={r}>
                         {r}
                       </option>
@@ -1077,12 +1123,33 @@ function EnquiryModal({
                   style={modalInput}
                   type="email"
                   required
+                  value={form.email}
+                  onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
                   placeholder="you@email.com"
                 />
               </ModalField>
 
+              {error && (
+                <div
+                  role="alert"
+                  style={{
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    color: "#b91c1c",
+                    background: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    borderRadius: 10,
+                    padding: "10px 12px",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {error}
+                </div>
+              )}
+
               <button
                 type="submit"
+                disabled={sending}
                 style={{
                   width: "100%",
                   marginTop: 4,
@@ -1094,7 +1161,8 @@ function EnquiryModal({
                   fontFamily: "inherit",
                   fontSize: 14.5,
                   fontWeight: 800,
-                  cursor: "pointer",
+                  cursor: sending ? "wait" : "pointer",
+                  opacity: sending ? 0.75 : 1,
                   boxShadow: "0 14px 30px -12px rgba(142,79,160,.65)",
                   display: "flex",
                   alignItems: "center",
@@ -1103,7 +1171,7 @@ function EnquiryModal({
                 }}
               >
                 <PhoneCall width={16} height={16} style={{ color: "#fff" }} />
-                Request a Callback
+                {sending ? "Sending…" : config.enquiry.ctaText}
               </button>
             </form>
           ) : (
@@ -1132,18 +1200,10 @@ function EnquiryModal({
                   marginTop: 16,
                 }}
               >
-                Request received!
+                {config.enquiry.successHeading}
               </div>
-              <p
-                style={{
-                  fontSize: 13.5,
-                  color: "#64748b",
-                  marginTop: 8,
-                  lineHeight: 1.55,
-                }}
-              >
-                Our travel expert will call you back within 30 minutes about the{" "}
-                <b style={{ color: "#16265C" }}>{region}</b> package.
+              <p style={{ fontSize: 13.5, color: "#64748b", marginTop: 8, lineHeight: 1.55 }}>
+                {config.enquiry.successText.replace("{region}", form.region)}
               </p>
               <button
                 type="button"
@@ -1161,7 +1221,7 @@ function EnquiryModal({
                   cursor: "pointer",
                 }}
               >
-                Done
+                {config.enquiry.successButton}
               </button>
             </div>
           )}

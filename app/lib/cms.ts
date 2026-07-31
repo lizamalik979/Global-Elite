@@ -93,6 +93,99 @@ export async function getServicePage(slug: string): Promise<CmsServicePage | nul
   }
 }
 
+// ── Package blocks ───────────────────────────────────────────────────────────
+
+// A package block is content injected INTO a page rather than a page of its
+// own. Blocks name the page slugs they belong to in the CMS; this fetcher asks
+// "what belongs on /<slug>?" while that page renders.
+
+export type CmsItineraryDay = { d: string; t: string; x: string };
+export type CmsPackageStat = { icon: string; v: string; k: string };
+
+export type CmsPackageItem = {
+  id: string;
+  title: string;
+  region: string;
+  duration: string;
+  season: string;
+  price: string;
+  old: string;
+  /** Icon key resolved by the tour-packages ICONS map */
+  icon: string;
+  /** Gradient key resolved by the tour-packages GRAD map */
+  band: string;
+  summary: string;
+  itinerary: CmsItineraryDay[];
+  includes: string[];
+  stats: CmsPackageStat[];
+  docsTitle: string;
+  docs: string[];
+};
+
+export type CmsPackageTab = { id: string; label: string; packages: CmsPackageItem[] };
+
+export type CmsPackageContent = {
+  anchorId: string;
+  tocLabel: string;
+  badge: string;
+  badgeIcon: string;
+  heading: string;
+  subtitle: string;
+  itineraryTitle: string;
+  includesTitle: string;
+  priceNote: string;
+  callbackNote: string;
+  enquireCta: string;
+  enquiry: {
+    kicker: string;
+    regionLabel: string;
+    ctaText: string;
+    successHeading: string;
+    successText: string;
+    successButton: string;
+  };
+  tabs: CmsPackageTab[];
+};
+
+export type CmsPackageBlock = {
+  slug: string;
+  title: string;
+  targetPages: string[];
+  status: "draft" | "published";
+  content: CmsPackageContent;
+};
+
+/**
+ * Published package blocks injected into the given page. Returns `[]` when the
+ * page has none, the CMS is unreachable, or the payload is malformed — the host
+ * page simply renders without a packages section.
+ *
+ * Cached for an hour and tagged so the CMS clears exactly the pages a block
+ * touches (tags: package-list, packages-<pageSlug>) when it is saved or deleted.
+ */
+export async function getPackagesForPage(pageSlug: string): Promise<CmsPackageBlock[]> {
+  try {
+    const res = await fetch(
+      `${CMS_URL}/api/packages/client/by-page/${encodeURIComponent(pageSlug)}`,
+      { next: { revalidate: 3600, tags: ["package-list", `packages-${pageSlug}`] } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    const blocks = data?.packageBlocks;
+    if (!Array.isArray(blocks)) return [];
+    return blocks.filter(
+      (b): b is CmsPackageBlock =>
+        !!b?.content &&
+        typeof b.content === "object" &&
+        Array.isArray(b.content.tabs) &&
+        b.content.tabs.length > 0
+    );
+  } catch {
+    // CMS unreachable — the page renders without its packages section
+    return [];
+  }
+}
+
 // ── Blog posts ───────────────────────────────────────────────────────────────
 
 export type CmsCategory = { id: string; name: string; slug: string; color: string };

@@ -7,7 +7,7 @@
 
 import ServiceLayout from "./servicelayout";
 import type { Icon, Section, ServiceConfig } from "./servicelayout/types";
-import type { CmsSection, CmsServiceContent } from "../../lib/cms";
+import type { CmsPackageBlock, CmsSection, CmsServiceContent } from "../../lib/cms";
 import * as Icons from "./icons";
 
 const iconMap = Icons as unknown as Record<string, Icon>;
@@ -66,15 +66,19 @@ export function serviceConfigFromCms(content: CmsServiceContent): ServiceConfig 
 export default function CmsServiceLayout({
   content,
   slug,
+  packages = [],
 }: {
   content: CmsServiceContent;
   slug?: string;
+  /** Package blocks the CMS targets at this page */
+  packages?: CmsPackageBlock[];
 }) {
   return (
     <ServiceLayout
       config={serviceConfigFromCms(content)}
       // Include the URL so leads from pages sharing a badge stay distinguishable
       leadSource={slug ? `${content.badge} page (/${slug})` : undefined}
+      packages={packages.map((b) => b.content)}
     />
   );
 }

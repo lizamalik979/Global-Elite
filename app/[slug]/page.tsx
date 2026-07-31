@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getServicePage } from "../lib/cms";
+import { getPackagesForPage, getServicePage } from "../lib/cms";
 import CmsServiceLayout from "../components/divisions/CmsServiceLayout";
 
 // Catch-all for CMS-managed service/division pages: any page published in the
@@ -21,7 +21,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CmsServicePage({ params }: Props) {
   const { slug } = await params;
-  const page = await getServicePage(slug);
+  // Package blocks are injected into this page by targeting its slug in the
+  // CMS, so both are fetched together.
+  const [page, packages] = await Promise.all([
+    getServicePage(slug),
+    getPackagesForPage(slug),
+  ]);
   if (!page) notFound();
-  return <CmsServiceLayout content={page.content} slug={slug} />;
+  return <CmsServiceLayout content={page.content} slug={slug} packages={packages} />;
 }
