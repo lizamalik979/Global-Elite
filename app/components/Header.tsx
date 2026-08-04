@@ -5,6 +5,7 @@ import MobileMenu from "./MobileMenu";
 import NavStrip from "./NavStrip";
 import { navLinks as fallbackNavLinks, type NavLink } from "./navData";
 import { getHeaderMenu } from "../lib/cms";
+import type { CmsLink } from "../lib/cms";
 
 function ContactBlock({
   icon,
@@ -33,17 +34,16 @@ function ContactBlock({
 export default async function Header() {
   const cms = await getHeaderMenu();
 
-  const links: NavLink[] = cms
-    ? cms.items.map((item) => ({
-        label: item.title,
-        href: item.url || "#",
-        dropdown: Array.isArray(item.child_menu) && item.child_menu.length > 0,
-        menu:
-          Array.isArray(item.child_menu) && item.child_menu.length > 0
-            ? item.child_menu.map((c) => ({ label: c.title, href: c.url || "#" }))
-            : undefined,
-      }))
-    : fallbackNavLinks;
+  // The CMS nests menu items to three levels; carry the whole tree through so
+  // NavStrip and MobileMenu can render every level.
+  const toNavLink = (item: CmsLink): NavLink => ({
+    label: item.label,
+    href: item.href,
+    dropdown: item.children.length > 0,
+    menu: item.children.length > 0 ? item.children.map(toNavLink) : undefined,
+  });
+
+  const links: NavLink[] = cms ? cms.items.map(toNavLink) : fallbackNavLinks;
 
   const contact = {
     whatsappLabel: cms?.contact.whatsappLabel || "WhatsApp Number",

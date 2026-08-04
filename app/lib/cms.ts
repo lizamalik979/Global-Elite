@@ -501,12 +501,52 @@ export async function getContactPage(): Promise<CmsContactPage | null> {
 
 // ── Header & footer menus ────────────────────────────────────────────────────
 
-/** Menu item as stored by the CMS (nested one level for dropdowns/columns). */
+/**
+ * Menu item as stored by the CMS. The dashboard nests three levels and names
+ * the bucket differently at each one (`child_menu` → `sub_child_menu` →
+ * `sub_sub_child_menu`); the deepest level also prefixes its own fields.
+ * Empty levels are stored as `false` rather than an empty array.
+ */
 export type CmsMenuItem = {
-  title: string;
-  url: string;
-  child_menu?: { title: string; url: string }[] | false;
+  title?: string;
+  url?: string;
+  sub_sub_child_title?: string;
+  sub_sub_child_url?: string;
+  child_menu?: CmsMenuItem[] | false;
+  sub_child_menu?: CmsMenuItem[] | false;
+  sub_sub_child_menu?: CmsMenuItem[] | false;
 };
+
+/** A menu item after normalisation: one shape, nested to any depth. */
+export type CmsLink = {
+  label: string;
+  href: string;
+  children: CmsLink[];
+};
+
+/**
+ * Flattens the CMS's per-level field names into a uniform recursive tree so
+ * consumers can render arbitrary nesting without knowing which bucket a level
+ * happens to live in.
+ */
+function normalizeMenuItem(raw: CmsMenuItem): CmsLink | null {
+  const label = (raw?.title ?? raw?.sub_sub_child_title ?? "").trim();
+  const href = (raw?.url ?? raw?.sub_sub_child_url ?? "").trim() || "#";
+  if (!label) return null;
+
+  const nested = [raw?.child_menu, raw?.sub_child_menu, raw?.sub_sub_child_menu]
+    .filter((bucket): bucket is CmsMenuItem[] => Array.isArray(bucket))
+    .flat();
+
+  return { label, href, children: normalizeMenuItems(nested) };
+}
+
+function normalizeMenuItems(raw: unknown): CmsLink[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => normalizeMenuItem(item as CmsMenuItem))
+    .filter((item): item is CmsLink => item !== null);
+}
 
 /** Utility-bar content of the header (contact blocks + CTA button). */
 export type CmsHeaderContact = {
@@ -518,19 +558,60 @@ export type CmsHeaderContact = {
   ctaUrl?: string;
 };
 
+/** The contact-detail kinds the CMS dashboard offers. */
+export type CmsFooterDetailType =
+  | "email"
+  | "phone"
+  | "address"
+  | "social"
+  | "link"
+  | "text";
+
+/** A contact-detail entry, optionally with its own nested entries. */
 export type CmsFooterDetail = {
   title: string;
-  type?: string;
+  type?: CmsFooterDetailType;
   value?: string;
   url?: string;
+  image?: string;
+  children: CmsFooterDetail[];
 };
+
+/** Raw contact-detail entry as the CMS stores it (`sub_child` may be `false`). */
+type RawFooterDetail = Omit<CmsFooterDetail, "children"> & {
+  sub_child?: RawFooterDetail[] | false;
+};
+
+function normalizeDetail(raw: RawFooterDetail): CmsFooterDetail | null {
+  const title = (raw?.title ?? "").trim();
+  const value = (raw?.value ?? "").trim();
+  const children = normalizeDetails(raw?.sub_child);
+  // An entry with neither a label nor content nor children has nothing to show.
+  if (!title && !value && children.length === 0) return null;
+
+  return {
+    title,
+    type: raw?.type,
+    value,
+    url: (raw?.url ?? "").trim(),
+    image: (raw?.image ?? "").trim(),
+    children,
+  };
+}
+
+function normalizeDetails(raw: unknown): CmsFooterDetail[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => normalizeDetail(item as RawFooterDetail))
+    .filter((item): item is CmsFooterDetail => item !== null);
+}
 
 /**
  * Header menu from the CMS. Returns null when the CMS is unreachable or no
  * menu items exist yet — the Header falls back to the built-in nav.
  */
 export async function getHeaderMenu(): Promise<{
-  items: CmsMenuItem[];
+  items: CmsLink[];
   contact: CmsHeaderContact;
 } | null> {
   try {
@@ -539,8 +620,8 @@ export async function getHeaderMenu(): Promise<{
     });
     if (!res.ok) return null;
     const data = await res.json();
-    const items: CmsMenuItem[] = data?.headerMenu?.main_menu ?? [];
-    if (!Array.isArray(items) || items.length === 0) return null;
+    const items = normalizeMenuItems(data?.headerMenu?.main_menu);
+    if (items.length === 0) return null;
     return { items, contact: data?.headerMenu?.contact_details ?? {} };
   } catch {
     return null;
@@ -548,11 +629,12 @@ export async function getHeaderMenu(): Promise<{
 }
 
 /**
- * Footer menu from the CMS: link columns + typed detail items (description,
- * copyright…). Null → the Footer falls back to its built-in content.
+ * Footer menu from the CMS: link columns (nested to any depth) + typed detail
+ * items (description, copyright, emails, phones, addresses, socials…).
+ * Null → the Footer falls back to its built-in content.
  */
 export async function getFooterMenu(): Promise<{
-  columns: CmsMenuItem[];
+  columns: CmsLink[];
   details: CmsFooterDetail[];
 } | null> {
   try {
@@ -561,10 +643,11 @@ export async function getFooterMenu(): Promise<{
     });
     if (!res.ok) return null;
     const data = await res.json();
-    const columns: CmsMenuItem[] = data?.footerMenu?.main_menu ?? [];
-    if (!Array.isArray(columns) || columns.length === 0) return null;
-    const details = data?.footerMenu?.contact_details;
-    return { columns, details: Array.isArray(details) ? details : [] };
+    const columns = normalizeMenuItems(data?.footerMenu?.main_menu);
+    const details = normalizeDetails(data?.footerMenu?.contact_details);
+    // Columns and details are independent — either one alone is worth rendering.
+    if (columns.length === 0 && details.length === 0) return null;
+    return { columns, details };
   } catch {
     return null;
   }

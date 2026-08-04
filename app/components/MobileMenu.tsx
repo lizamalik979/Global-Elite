@@ -6,10 +6,147 @@ import { usePathname } from "next/navigation";
 import type { NavLink as NavLinkItem } from "./navData";
 import { ChevronDown, ChevronRight } from "./icons";
 
+/** True when this link or anything beneath it matches the current route. */
+function containsPath(link: NavLinkItem, pathname: string): boolean {
+  if (link.href === pathname) return true;
+  return link.menu?.some((child) => containsPath(child, pathname)) ?? false;
+}
+
+// One accordion row. Rows with children expand in place and recurse, so every
+// level the CMS defines stays reachable inside the drawer.
+function DrawerItem({
+  link,
+  path,
+  depth,
+  pathname,
+  expanded,
+  toggle,
+  close,
+}: {
+  link: NavLinkItem;
+  path: string;
+  depth: number;
+  pathname: string;
+  expanded: Set<string>;
+  toggle: (path: string) => void;
+  close: () => void;
+}) {
+  // Each level steps in a little so the hierarchy reads at a glance.
+  const indent = { paddingLeft: 16 + depth * 4 };
+  const isTop = depth === 0;
+  const textClass = isTop
+    ? "text-[15px] font-bold"
+    : "text-[13.5px] font-semibold";
+  const activeClass = containsPath(link, pathname)
+    ? "text-gold"
+    : isTop
+      ? "text-white/95"
+      : "text-white/80";
+
+  if (!link.menu?.length) {
+    return (
+      <Link
+        href={link.href}
+        onClick={close}
+        style={indent}
+        className={`flex items-center gap-2 rounded-xl py-3 pr-4 transition-colors hover:bg-white/10 hover:text-white ${textClass} ${activeClass}`}
+      >
+        {!isTop && (
+          <ChevronRight className="size-[14px] shrink-0 text-purple-300" />
+        )}
+        {link.label}
+      </Link>
+    );
+  }
+
+  const isExpanded = expanded.has(path);
+  // A branch that also points somewhere keeps its own link; the chevron alone
+  // toggles, so tapping the label still navigates.
+  const navigable = link.href && link.href !== "#";
+
+  return (
+    <div>
+      <div
+        style={indent}
+        className={`flex items-center rounded-xl pr-1 transition-colors hover:bg-white/10 ${activeClass}`}
+      >
+        {navigable ? (
+          <Link
+            href={link.href}
+            onClick={close}
+            className={`flex flex-1 items-center gap-2 py-3 text-left ${textClass}`}
+          >
+            {!isTop && (
+              <ChevronRight className="size-[14px] shrink-0 text-purple-300" />
+            )}
+            {link.label}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => toggle(path)}
+            className={`flex flex-1 items-center gap-2 py-3 text-left ${textClass}`}
+          >
+            {!isTop && (
+              <ChevronRight className="size-[14px] shrink-0 text-purple-300" />
+            )}
+            {link.label}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => toggle(path)}
+          aria-expanded={isExpanded}
+          aria-label={`${isExpanded ? "Collapse" : "Expand"} ${link.label}`}
+          className="grid size-9 shrink-0 place-items-center rounded-lg transition-colors hover:bg-white/10"
+        >
+          <ChevronDown
+            className={`size-[17px] text-gold transition-transform duration-200 ${
+              isExpanded ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+      </div>
+      {isExpanded && (
+        <div className="mb-1 ml-4 flex flex-col border-l border-white/15 pl-1">
+          {link.menu.map((child, i) => (
+            <DrawerItem
+              key={`${child.label}-${i}`}
+              link={child}
+              path={`${path}.${i}`}
+              depth={depth + 1}
+              pathname={pathname}
+              expanded={expanded}
+              toggle={toggle}
+              close={close}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MobileMenu({ links }: { links: NavLinkItem[] }) {
   const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  // Paths ("0.2.1") rather than labels, so identically named entries at
+  // different points in the tree expand independently.
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const pathname = usePathname();
+
+  const toggle = (path: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) {
+        // Collapsing a branch collapses everything nested inside it.
+        for (const key of next) {
+          if (key === path || key.startsWith(`${path}.`)) next.delete(key);
+        }
+      } else {
+        next.add(path);
+      }
+      return next;
+    });
 
   // Lock body scroll and support Escape-to-close while the drawer is open.
   useEffect(() => {
@@ -28,7 +165,7 @@ export default function MobileMenu({ links }: { links: NavLinkItem[] }) {
 
   const close = () => {
     setOpen(false);
-    setExpanded(null);
+    setExpanded(new Set());
   };
 
   return (
@@ -98,60 +235,18 @@ export default function MobileMenu({ links }: { links: NavLinkItem[] }) {
 
         {/* Links */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {links.map((link) => {
-            if (!link.menu) {
-              return (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  onClick={close}
-                  className={`block rounded-xl px-4 py-3.5 text-[15px] font-bold transition-colors ${
-                    pathname === link.href
-                      ? "text-gold"
-                      : "text-white/95 hover:bg-white/10"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            }
-
-            const isExpanded = expanded === link.label;
-            return (
-              <div key={link.label}>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setExpanded(isExpanded ? null : link.label)
-                  }
-                  aria-expanded={isExpanded}
-                  className="flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-left text-[15px] font-bold text-white/95 transition-colors hover:bg-white/10"
-                >
-                  {link.label}
-                  <ChevronDown
-                    className={`size-[17px] text-gold transition-transform duration-200 ${
-                      isExpanded ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {isExpanded && (
-                  <div className="mb-1 ml-3 flex flex-col border-l border-white/15 pl-2">
-                    {link.menu.map((item) => (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        onClick={close}
-                        className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-[13.5px] font-semibold text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-                      >
-                        <ChevronRight className="size-[14px] shrink-0 text-purple-300" />
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {links.map((link, i) => (
+            <DrawerItem
+              key={`${link.label}-${i}`}
+              link={link}
+              path={String(i)}
+              depth={0}
+              pathname={pathname}
+              expanded={expanded}
+              toggle={toggle}
+              close={close}
+            />
+          ))}
         </nav>
 
         {/* CTA */}
