@@ -69,3 +69,72 @@ body {
   background-clip: text;
   color: transparent;
 }
+
+/* Rich text authored in the CMS editor (Terms & Privacy). No typography
+   plugin is installed, so the element styles are declared here. */
+.legal-body {
+  color: var(--color-slate);
+  font-size: 15.5px;
+  line-height: 1.8;
+}
+.legal-body > * + * {
+  margin-top: 1.05em;
+}
+.legal-body h1,
+.legal-body h2,
+.legal-body h3,
+.legal-body h4 {
+  color: var(--color-navy);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2em;
+}
+.legal-body h1 { font-size: 24px; }
+.legal-body h2 { font-size: 20px; }
+.legal-body h3 { font-size: 17px; }
+.legal-body h4 { font-size: 15.5px; }
+.legal-body a {
+  color: var(--color-purple-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.legal-body a:hover { color: var(--color-purple-500); }
+.legal-body strong { color: var(--color-navy); font-weight: 700; }
+.legal-body ul,
+.legal-body ol { padding-left: 1.35em; }
+.legal-body ul { list-style: disc; }
+.legal-body ol { list-style: decimal; }
+.legal-body li { margin-top: 0.45em; }
+.legal-body li::marker { color: var(--color-gold); }
+.legal-body blockquote {
+  border-left: 3px solid var(--color-gold);
+  padding-left: 1em;
+  color: var(--color-slate-light);
+  font-style: italic;
+}
+.legal-body hr {
+  border: 0;
+  border-top: 1px solid var(--color-purple-100);
+  margin: 2em 0;
+}
+.legal-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  display: block;
+  overflow-x: auto;
+}
+.legal-body th,
+.legal-body td {
+  border: 1px solid var(--color-purple-100);
+  padding: 9px 12px;
+  text-align: left;
+}
+.legal-body th { background: var(--color-purple-50); color: var(--color-navy); font-weight: 700; }
+.legal-body img { max-width: 100%; height: auto; border-radius: 10px; }
+.legal-body code {
+  background: var(--color-purple-50);
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 13.5px;
+}

@@ -1,28 +1,35 @@
+import Link from "next/link";
+import { getLatestPosts } from "../lib/cms";
+
 // Insights / Blog section — built to match Figma node 26:2610 ("Latest insights & trends").
-// Server Component. Icons are inlined lucide-style SVGs. The Figma cover frames carry no
-// raster fill, so covers render as a light branded image-placeholder area.
+// Server Component. Icons are inlined lucide-style SVGs.
+//
+// The three cards are the newest published posts from the CMS, regardless of
+// category. The hardcoded list below renders only when the CMS is unreachable
+// or has no posts yet, so the homepage never shows an empty section.
 
 type Post = {
   tag: string;
   title: string;
   href: string;
+  image?: string | null;
 };
 
-const posts: Post[] = [
+const fallbackPosts: Post[] = [
   {
     tag: "Apostille",
     title: "Apostille vs. Attestation: which one does your country need?",
-    href: "#",
+    href: "/blog",
   },
   {
     tag: "Process",
     title: "5 documents every Gulf work-visa applicant must legalize first",
-    href: "#",
+    href: "/blog",
   },
   {
     tag: "Guide",
     title: "How real-time tracking removes the anxiety from going abroad",
-    href: "#",
+    href: "/blog",
   },
 ];
 
@@ -62,7 +69,19 @@ function ArrowRight({ className }: { className?: string }) {
   );
 }
 
-export default function Insights() {
+export default async function Insights() {
+  const latest = await getLatestPosts(3);
+
+  const posts: Post[] = latest.length
+    ? latest.map((p) => ({
+        // First category is the card's tag; posts without one still render.
+        tag: p.category?.[0]?.name || "Insights",
+        title: p.title,
+        href: `/blog/${p.slug}`,
+        image: p.featuredImage,
+      }))
+    : fallbackPosts;
+
   return (
     <section className="py-20 lg:py-24">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-10">
@@ -81,41 +100,56 @@ export default function Insights() {
             </h2>
           </div>
 
-          <a
-            href="#"
+          <Link
+            href="/blog"
             className="inline-flex items-center gap-2 rounded-full bg-navy px-5 py-[9px] text-[13px] font-bold tracking-wide text-white transition-colors hover:bg-navy-deep"
           >
             VIEW ALL
             <ArrowUpRight className="size-4" />
-          </a>
+          </Link>
         </div>
 
         {/* Cards */}
         <div className="mt-12 grid grid-cols-1 gap-[22px] sm:grid-cols-2 md:grid-cols-3">
           {posts.map((post) => (
             <article
-              key={post.title}
+              key={post.href + post.title}
               className="overflow-hidden rounded-[20px] border border-purple-100 bg-white shadow-[0_10px_30px_-18px_rgba(22,38,92,0.16)]"
             >
-              {/* Cover */}
-              <div className="relative h-[188px] bg-gradient-to-br from-purple-50 to-purple-100">
+              {/* Cover — the post's featured image, or the branded placeholder */}
+              <Link
+                href={post.href}
+                className="relative block h-[188px] overflow-hidden bg-gradient-to-br from-purple-50 to-purple-100"
+              >
+                {post.image && (
+                  // CMS covers are arbitrary remote URLs, so they bypass next/image.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={post.image}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                )}
                 <span className="absolute left-[14px] top-[14px] rounded-full bg-white/90 px-[11px] py-[5px] text-[11px] font-bold tracking-[0.44px] text-purple-500 shadow-[0_1px_4px_rgba(22,38,92,0.08)]">
                   {post.tag}
                 </span>
-              </div>
+              </Link>
 
               {/* Body */}
               <div className="p-[22px]">
                 <h3 className="text-[17px] font-bold leading-[1.35] text-navy">
-                  {post.title}
+                  <Link href={post.href} className="transition-colors hover:text-purple-600">
+                    {post.title}
+                  </Link>
                 </h3>
-                <a
+                <Link
                   href={post.href}
                   className="mt-4 inline-flex items-center gap-2 text-[13px] font-bold text-purple-500 transition-colors hover:text-purple-600"
                 >
                   Read article
                   <ArrowRight className="size-[15px]" />
-                </a>
+                </Link>
               </div>
             </article>
           ))}
