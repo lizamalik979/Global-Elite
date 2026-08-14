@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement>;
@@ -49,24 +50,45 @@ function Star(p: IconProps) {
   );
 }
 
-const AV = {
-  navy: "linear-gradient(135deg,#33468a,#16265c)",
-  purple: "linear-gradient(135deg,#a869c0,#8e4fa0)",
-  pink: "linear-gradient(135deg,#c880d0,#a15bb0)",
-  gold: "linear-gradient(135deg,#f2bd54,#e0912f)",
-};
+// Client-photo / NRI avatars used by the stat cards.
+const WORLDWIDE_AVATARS = [
+  "/assets/nri.svg",
+  "/assets/nri1.svg",
+  "/assets/nri2.svg",
+];
+const CLIENT_AVATARS = [
+  "/assets/client1.webp",
+  "/assets/client2.webp",
+  "/assets/client3.webp",
+  "/assets/client4.webp",
+];
 
-function Avatars({ colors }: { colors: string[] }) {
+function Avatars({
+  images,
+  bordered = true,
+}: {
+  images: string[];
+  /** Set false when the image already includes its own ring (e.g. nri.svg) */
+  bordered?: boolean;
+}) {
   return (
     <div className="flex">
-      {colors.map((c, i) => (
+      {images.map((src, i) => (
         <span
-          key={i}
-          className={`size-[30px] rounded-full border-2 border-white ${
-            i > 0 ? "-ml-[10px]" : ""
-          }`}
-          style={{ backgroundImage: c }}
-        />
+          key={src}
+          className={`relative size-[30px] shrink-0 overflow-hidden rounded-full bg-purple-50 ${
+            bordered ? "border-2 border-white" : ""
+          } ${i > 0 ? "-ml-[10px]" : ""}`}
+        >
+          <Image
+            src={src}
+            alt=""
+            fill
+            sizes="30px"
+            unoptimized={src.endsWith(".svg")}
+            className="object-cover"
+          />
+        </span>
       ))}
     </div>
   );
@@ -115,7 +137,7 @@ export default function Stats() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Avatars colors={[AV.navy, AV.purple, AV.gold]} />
+              <Avatars images={WORLDWIDE_AVATARS} bordered={false} />
               <span className="text-[11.5px] font-semibold text-[#9fb0d6]">
                 Trusted worldwide
               </span>
@@ -141,7 +163,7 @@ export default function Stats() {
             <div className="mt-[18px] h-px w-full bg-[#f1ebf7]" />
 
             <div className="mt-[18px] flex items-center gap-4">
-              <Avatars colors={[AV.navy, AV.purple, AV.pink, AV.gold]} />
+              <Avatars images={CLIENT_AVATARS} />
               <span className="text-[11.5px] font-semibold text-slate-light">
                 25,000+ verified cases
               </span>

@@ -1,4 +1,11 @@
+import Image from "next/image";
 import LeadPopupButton from "./LeadPopup";
+
+const AVATARS = [
+  "/assets/client1.webp",
+  "/assets/client2.webp",
+  "/assets/client3.webp",
+];
 
 export default function CTA() {
   return (
@@ -23,9 +30,20 @@ export default function CTA() {
               {/* Eyebrow pill */}
               <div className="inline-flex h-11 items-center gap-3 rounded-full border border-white/20 bg-white/[0.12] py-1.5 pl-1.5 pr-4 backdrop-blur-sm">
                 <div className="flex -space-x-2.5">
-                  <span className="size-[30px] rounded-full border-2 border-white bg-[linear-gradient(135deg,#f0a63c_0%,#e07a54_100%)]" />
-                  <span className="size-[30px] rounded-full border-2 border-white bg-[linear-gradient(135deg,#b3529a_0%,#7a3d94_100%)]" />
-                  <span className="size-[30px] rounded-full border-2 border-white bg-[linear-gradient(135deg,#8e4fa0_0%,#5a3a7a_100%)]" />
+                  {AVATARS.map((src) => (
+                    <span
+                      key={src}
+                      className="relative size-[30px] overflow-hidden rounded-full border-2 border-white bg-purple-50"
+                    >
+                      <Image
+                        src={src}
+                        alt=""
+                        fill
+                        sizes="30px"
+                        className="object-cover"
+                      />
+                    </span>
+                  ))}
                 </div>
                 <span className="text-[12.5px] font-semibold leading-none text-white">
                   Trusted by 25,000+ clients

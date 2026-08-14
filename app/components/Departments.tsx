@@ -208,10 +208,11 @@ export default function Departments() {
             </div>
           </div>
 
-          {/* Composition grid */}
-          <div className="mt-5 grid gap-5 lg:grid-cols-[2fr_1fr]">
-            {/* Left column */}
-            <div className="flex flex-col gap-5">
+          {/* Composition — two rows. Row 1: text (left) + MEA image (right).
+              Row 2 is swapped: global image (left) + authorities (right). */}
+          <div className="mt-5 flex flex-col gap-5">
+            {/* Row 1 — HRD + Ministry (left)  ·  MEA image (right) */}
+            <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
               {/* HRD + Ministry cards */}
               <div className="grid gap-5 sm:grid-cols-2">
                 {/* HRD (light) */}
@@ -253,6 +254,39 @@ export default function Departments() {
                 </div>
               </div>
 
+              {/* MEA image */}
+              <div
+                className="relative min-h-[200px] overflow-hidden rounded-[22px] shadow-[0_16px_19px_rgba(24,20,54,0.5)]"
+                style={{ backgroundColor: "#181436" }}
+              >
+                <Image
+                  src="/assets/MEA.svg"
+                  alt="Ministry of External Affairs"
+                  fill
+                  unoptimized
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Row 2 (swapped) — global image (left)  ·  authorities (right) */}
+            <div className="grid gap-5 lg:grid-cols-[1fr_2fr]">
+              {/* global image */}
+              <div
+                className="relative min-h-[200px] overflow-hidden rounded-[22px] shadow-[0_16px_19px_rgba(24,20,54,0.5)]"
+                style={{ backgroundColor: "#181436" }}
+              >
+                <Image
+                  src="/assets/global.svg"
+                  alt="Recognised across 120+ countries"
+                  fill
+                  unoptimized
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
+
               {/* Recognised authorities (light, wide) */}
               <div className="rounded-[22px] border bg-[#f7f3fa] p-[30px] shadow-[0_12px_15px_rgba(22,38,92,0.12)]">
                 <p className="text-[13px] font-bold tracking-[0.26px] text-navy">
@@ -287,25 +321,6 @@ export default function Departments() {
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Right column — stacked photo panels */}
-            <div className="flex flex-col gap-5">
-              {[0, 1].map((k) => (
-                <div
-                  key={k}
-                  className="grid min-h-[200px] flex-1 place-items-center rounded-[22px] p-6 shadow-[0_16px_19px_rgba(24,20,54,0.5)]"
-                  style={{ backgroundColor: "#181436" }}
-                >
-                  <Image
-                    src="/assets/dept-placeholder.png"
-                    alt=""
-                    width={204}
-                    height={192}
-                    className="h-auto w-[204px] max-w-[62%]"
-                  />
-                </div>
-              ))}
             </div>
           </div>
         </div>

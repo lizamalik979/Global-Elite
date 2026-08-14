@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 type IconProps = { className?: string };
@@ -54,52 +55,46 @@ function QuoteIcon({ className }: IconProps) {
 }
 
 type Testimonial = {
-  brand: string;
   quote: string;
   name: string;
   role: string;
+  photo: string;
 };
 
 const testimonials: Testimonial[] = [
   {
-    brand: "LOGOIPSUM",
     quote:
       "They brought clarity to a complex UAE attestation — breaking down every barrier and delivering ahead of schedule.",
     name: "Rahul Mehta",
     role: "UAE Employment Attestation",
+    photo: "/assets/client1.webp",
   },
   {
-    brand: "LOOQ",
     quote:
       "Their team resolved a tricky Germany study-visa apostille, opening new paths and keeping me informed throughout.",
     name: "Priya Sharma",
     role: "MEA Apostille — Germany",
+    photo: "/assets/client3.webp",
   },
   {
-    brand: "IPSM",
     quote:
       "We found focus for a hard KSA consular case — cutting through the noise and providing a genuinely transparent process.",
     name: "Imran Qureshi",
     role: "KSA Embassy Stamping",
+    photo: "/assets/client2.webp",
   },
   {
-    brand: "NOVA",
     quote:
       "They gave a simple, calm experience — removing every delay on my Canada PR birth-certificate apostille.",
     name: "Anjali Nair",
     role: "Birth Certificate — Canada",
-  },
-  {
-    brand: "AXIS",
-    quote:
-      "Incorporation papers consular-stamped for a Qatar tender, ahead of the deadline. Faultless coordination.",
-    name: "Vikram Reddy",
-    role: "Corporate — Qatar",
+    photo: "/assets/client4.webp",
   },
 ];
 
-const cardGradient =
-  "linear-gradient(180deg, #e8e8ea 0%, #e4e4e4 48%, #c8c7ca 60%, #6e6b76 74%, #44404f 88%, #241f33 100%)";
+// Dark gradient laid over each photo so the quote stays legible at the bottom.
+const overlayGradient =
+  "linear-gradient(180deg, rgba(20,18,40,0) 30%, rgba(20,18,40,0.45) 52%, rgba(20,18,40,0.82) 74%, rgba(20,18,40,0.95) 100%)";
 
 export default function Testimonials() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -181,17 +176,25 @@ export default function Testimonials() {
           {testimonials.map((t) => (
             <article
               key={t.name}
-              className="relative flex h-[430px] w-[340px] shrink-0 snap-start flex-col overflow-hidden rounded-[22px] shadow-[0_20px_44px_-22px_rgba(22,38,92,0.45)]"
-              style={{ backgroundImage: cardGradient }}
+              className="relative flex h-[430px] w-[340px] shrink-0 snap-start flex-col overflow-hidden rounded-[22px]"
             >
-              {/* Brand watermark */}
-              <span className="absolute left-5 top-[18px] font-mono text-[12px] font-bold tracking-[1.2px] text-white/85">
-                {t.brand}
-              </span>
+              {/* Client photo */}
+              <Image
+                src={t.photo}
+                alt={t.name}
+                fill
+                sizes="340px"
+                className="object-cover"
+              />
+              {/* Dark gradient overlay so the quote stays legible */}
+              <div
+                className="absolute inset-0"
+                style={{ backgroundImage: overlayGradient }}
+              />
 
               {/* Quote content pinned to bottom */}
-              <div className="mt-auto px-6 pb-6">
-                <QuoteIcon className="size-[22px] text-[#241f33]" />
+              <div className="relative z-10 mt-auto px-6 pb-6">
+                <QuoteIcon className="size-[22px] text-white/90" />
                 <p className="mt-3 text-[14px] font-semibold leading-[21px] text-white">
                   {t.quote}
                 </p>
