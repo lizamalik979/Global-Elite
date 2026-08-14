@@ -239,6 +239,26 @@ export async function getAllPosts(): Promise<CmsPostSummary[]> {
   }
 }
 
+/**
+ * The newest published posts, for teaser strips like the homepage "Latest
+ * insights & trends". Unlike getAllPosts this asks the CMS for one short page,
+ * which already sorts by most recent activity — no need to pull every post to
+ * show three. Cached 1h and tagged `post-list`, so publishing refreshes it.
+ */
+export async function getLatestPosts(limit = 3): Promise<CmsPostSummary[]> {
+  try {
+    const res = await fetch(
+      `${CMS_URL}/api/post/client/all-blog?page=1&limit=${Math.max(1, Math.min(50, limit))}`,
+      { next: { revalidate: 3600, tags: ["post-list"] } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data?.posts) ? (data.posts as CmsPostSummary[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 /** One published post with full HTML content; null if missing/unpublished. */
 export async function getPost(slug: string): Promise<CmsPost | null> {
   try {
@@ -494,6 +514,44 @@ export async function getContactPage(): Promise<CmsContactPage | null> {
     const page = data?.data;
     if (!page?.content || typeof page.content !== "object" || !page.content.hero) return null;
     return page as CmsContactPage;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Terms & Privacy page from the CMS. Both documents live in one record, so the
+ * site serves them from a single route. The rich-text fields are stored by the
+ * dashboard's editor as `{ body: "<html>" }`.
+ */
+export type CmsTermsPolicy = {
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  title?: string | null;
+  subTitle?: string | null;
+  /** Terms & Conditions rich text. */
+  content?: { body?: string } | null;
+  /** Privacy Policy rich text. */
+  privacyPolicyContent?: { body?: string } | null;
+  updatedAt?: string | null;
+};
+
+/**
+ * Null when the CMS is unreachable or nothing has been saved yet — the
+ * /terms-and-privacy route then renders its built-in placeholder.
+ * Tagged `terms-policy`.
+ */
+export async function getTermsPolicy(): Promise<CmsTermsPolicy | null> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/terms-policy`, {
+      next: { revalidate: 3600, tags: ["terms-policy"] },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const page = data?.data;
+    // The endpoint returns `data: null` before anything is saved.
+    if (!page) return null;
+    return page as CmsTermsPolicy;
   } catch {
     return null;
   }
