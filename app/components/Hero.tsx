@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowRight, Star } from "./icons";
+import { ArrowRight, Sparkles, Star } from "./icons";
 import HeroFeatures from "./HeroFeatures";
 import LeadPopupButton from "./LeadPopup";
 
@@ -19,15 +19,24 @@ export default function Hero() {
         <div className="mx-auto max-w-[1320px] px-6 pb-16 pt-12 lg:px-10">
           {/* Headline */}
           <div className="mx-auto max-w-[920px] text-center">
-            <h1 className="text-[clamp(30px,6.4vw,68px)] font-extrabold leading-[1.04] tracking-[-0.035em]">
-              <span className="text-white">Legalizing your documents</span>
+            {/* AI SaaS eyebrow */}
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.12] px-4 py-1.5 backdrop-blur-sm">
+              <Sparkles className="size-[15px] text-gold" />
+              <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-white">
+                AI-Powered SaaS Platform
+              </span>
+            </div>
+
+            <h1 className="mt-5 text-[clamp(30px,6.4vw,68px)] font-extrabold leading-[1.04] tracking-[-0.035em]">
+              <span className="text-white">AI-powered legalization</span>
               <br />
               <span className="text-white/55">for the entire world</span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-[570px] text-[17px] font-medium leading-relaxed text-white/90">
-              We apostille, attest and translate your certificates —
-              MEA-registered, fully tracked, and delivered to 120+ countries.
+            <p className="mx-auto mt-6 max-w-[600px] text-[17px] font-medium leading-relaxed text-white/90">
+              Our AI SaaS platform automates apostille, attestation and
+              translation — intelligent document checks, real-time tracking and
+              delivery to 120+ countries.
             </p>
 
             {/* Buttons */}

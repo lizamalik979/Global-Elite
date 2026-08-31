@@ -172,7 +172,7 @@ export default function Departments() {
               <span className="italic text-purple-500">attestation</span>
             </h2>
             <p className="mx-auto mt-4 max-w-[648px] text-[16px] leading-[1.55] text-slate">
-              {`Every certificate passes through a verified chain of authorities — here's who signs off, and in what order.`}
+              {`Every certificate passes through a verified chain of authorities — and our AI platform tracks each hand-off in real time, so you always know who's signing off and when.`}
             </p>
           </div>
 

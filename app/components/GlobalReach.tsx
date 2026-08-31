@@ -162,7 +162,7 @@ function TrackingMockup() {
   return (
     <div className="w-full max-w-[280px] rounded-[16px] bg-white p-[18px] shadow-[0_24px_24px_rgba(22,38,92,0.4)]">
       <div className="flex items-center justify-between">
-        <span className="text-[12px] font-bold text-navy">Live tracking</span>
+        <span className="text-[12px] font-bold text-navy">AI live tracking</span>
         <span className="rounded-full bg-purple-500 px-2 py-[3px] text-[9.5px] font-bold text-white">
           In transit
         </span>
@@ -372,8 +372,8 @@ export default function GlobalReach() {
               <span className="italic text-purple-500">global reach</span>
             </h2>
             <p className="mx-auto mt-4 max-w-[520px] text-[16px] leading-[1.55] text-slate">
-              A technology-backed process that keeps every document visible,
-              verified and on time.
+              An AI-powered process that keeps every document visible, verified
+              and on time.
             </p>
           </div>
 

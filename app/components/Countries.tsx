@@ -107,8 +107,8 @@ const steps: Step[] = [
   {
     num: "03",
     icon: <ActivityIcon />,
-    title: "Process Status Tracking",
-    desc: "Our platform monitors each checkpoint in real time, so you always know exactly where your file stands.",
+    title: "AI Status Tracking",
+    desc: "Our AI platform monitors each checkpoint in real time, so you always know exactly where your file stands.",
   },
   {
     num: "04",

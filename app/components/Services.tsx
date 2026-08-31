@@ -1,5 +1,10 @@
-import LeadPopupButton, { DOCUMENT_SERVICES } from "./LeadPopup";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import LeadPopupButton, { DOCUMENT_SERVICES, DIVISION_SERVICES } from "./LeadPopup";
 import Image from "next/image";
+import type { ReactNode } from "react";
+import { Bot, Sparkles, Check } from "./icons";
 
 type IconProps = { className?: string };
 
@@ -137,7 +142,60 @@ function ArrowUpRightIcon({ className }: IconProps) {
   );
 }
 
-const services = [
+function WorkflowIcon({ className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect width="8" height="8" x="3" y="3" rx="2" />
+      <path d="M7 11v4a2 2 0 0 0 2 2h4" />
+      <rect width="8" height="8" x="13" y="13" rx="2" />
+    </svg>
+  );
+}
+
+type ServiceCard = {
+  icon: ReactNode;
+  title: string;
+  text?: string;
+  bullets?: string[];
+  /** Preselected dropdown option; falls back to the title */
+  service?: string;
+  /** Dropdown option set for this card (defaults to DOCUMENT_SERVICES) */
+  services?: string[];
+};
+
+const AI_TECH_SERVICE =
+  "AI & Technology Solutions — AI training, automation, analytics";
+
+const services: ServiceCard[] = [
+  {
+    icon: <Bot className="size-[23px]" />,
+    title: "AI Document Automation",
+    text: "Our AI platform auto-checks documents, routes them to the right desk and tracks every step in real time.",
+    service: "AI Document Automation",
+  },
+    {
+    icon: <Sparkles className="size-[23px]" />,
+    title: "AI Training",
+    text: "AI awareness & upskilling programs , Custom training tracks and Practical AI tool adoption.",
+    service: AI_TECH_SERVICE,
+    services: DIVISION_SERVICES,
+  },
+  {
+    icon: <WorkflowIcon className="size-[23px]" />,
+    title: "Business Automation",
+    text: "Workflow & process automation , Repetitive-task elimination and System & tool integration.",
+    service: AI_TECH_SERVICE,
+    services: DIVISION_SERVICES,
+  },
   {
     icon: <StampIcon className="size-[23px]" />,
     title: "MEA Apostille",
@@ -165,9 +223,48 @@ const services = [
     text: "Complete support for study permits, university compliance, and post-graduation work pathways.",
     service: "Student Immigration",
   },
+
 ];
 
 export default function Services() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [activeDot, setActiveDot] = useState(0);
+
+  // Mobile slider only: track which card is centred so the dots stay in sync.
+  const onScroll = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    const cards = Array.from(el.children) as HTMLElement[];
+    const center = el.scrollLeft + el.clientWidth / 2;
+    let closest = 0;
+    let min = Infinity;
+    cards.forEach((c, i) => {
+      const cardCenter = c.offsetLeft + c.offsetWidth / 2;
+      const d = Math.abs(cardCenter - center);
+      if (d < min) {
+        min = d;
+        closest = i;
+      }
+    });
+    setActiveDot(closest);
+  };
+
+  useEffect(() => {
+    onScroll();
+  }, []);
+
+  const goTo = (i: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const card = el.children[i] as HTMLElement | undefined;
+    if (card) {
+      el.scrollTo({ left: card.offsetLeft, behavior: "smooth" });
+    }
+  };
+
+  // Total slides on mobile = every service card + the photo card.
+  const slideCount = services.length + 1;
+
   return (
     <section className="py-16 lg:py-24">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-10">
@@ -177,13 +274,14 @@ export default function Services() {
             • SERVICES
           </p>
           <h2 className="mt-4 text-[clamp(30px,3.6vw,42px)] font-bold leading-[1.12] tracking-[-0.63px] text-navy">
-            Comprehensive legalization &amp;{" "}
+            AI-powered legalization &amp;{" "}
             <span className="italic text-purple-500">document</span>{" "}
             services
           </h2>
           <p className="mx-auto mt-4 max-w-[648px] text-[16px] leading-[1.55] text-slate">
-            Whether you&apos;re moving abroad to work, study or trade — we handle
-            every signature, stamp and sticker for you.
+            Every service runs on our AI platform — automated document checks,
+            live tracking and a dedicated agent, from your first signature to
+            final delivery.
           </p>
           <div className="mt-8 flex justify-center">
             <LeadPopupButton
@@ -199,12 +297,16 @@ export default function Services() {
           </div>
         </div>
 
-        {/* Cards */}
-        <div className="mx-auto mt-14 grid max-w-[1180px] grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
+        {/* Cards — snap-slider on mobile, grid from sm up */}
+        <div
+          ref={trackRef}
+          onScroll={onScroll}
+          className="mx-auto mt-14 flex max-w-[1180px] snap-x snap-mandatory gap-[18px] overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:grid sm:snap-none sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-3"
+        >
           {services.map((s) => (
             <div
               key={s.title}
-              className="flex min-h-[240px] flex-col rounded-[20px] border border-purple-100 bg-white p-[26px] shadow-[0_10px_15px_rgba(22,38,92,0.16)]"
+              className="flex min-h-[240px] w-[86%] shrink-0 snap-center flex-col rounded-[20px] border border-purple-100 bg-white p-[26px] sm:w-auto sm:shrink"
             >
               <span className="grid size-[46px] place-items-center rounded-[13px] bg-gradient-to-br from-purple-50 to-[#efe1f8] text-navy">
                 {s.icon}
@@ -212,12 +314,27 @@ export default function Services() {
               <h3 className="mt-[18px] text-[17px] font-bold leading-[1.2] text-navy">
                 {s.title}
               </h3>
-              <p className="mt-2 text-[13.5px] leading-[1.5] text-slate">
-                {s.text}
-              </p>
+              {s.text && (
+                <p className="mt-2 text-[13.5px] leading-[1.5] text-slate">
+                  {s.text}
+                </p>
+              )}
+              {s.bullets && (
+                <ul className="mt-3 space-y-2">
+                  {s.bullets.map((b) => (
+                    <li
+                      key={b}
+                      className="flex items-start gap-2 text-[13px] leading-[1.35] text-slate"
+                    >
+                      <Check className="mt-[2px] size-[14px] shrink-0 text-purple-500" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <LeadPopupButton
                 source={`Home page — ${s.title} learn more`}
-                services={DOCUMENT_SERVICES}
+                services={s.services ?? DOCUMENT_SERVICES}
                 defaultService={s.service ?? s.title}
                 className="mt-6 inline-flex items-center gap-1.5 text-[13px] font-bold text-purple-500 lg:mt-auto"
               >
@@ -228,7 +345,7 @@ export default function Services() {
           ))}
 
           {/* Photo card */}
-          <div className="relative min-h-[240px] overflow-hidden rounded-[20px] bg-white shadow-[0_16px_40px_-20px_rgba(22,38,92,0.4)]">
+          <div className="relative min-h-[240px] w-[86%] shrink-0 snap-center overflow-hidden rounded-[20px] bg-white sm:w-auto sm:shrink">
             <Image
               src="/assets/svc-corporate.png"
               alt="Corporate and personal document specialists at work"
@@ -245,6 +362,22 @@ export default function Services() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Dots — mobile only */}
+        <div className="mt-6 flex items-center justify-center gap-2 sm:hidden">
+          {Array.from({ length: slideCount }).map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Go to slide ${i + 1}`}
+              aria-current={i === activeDot}
+              onClick={() => goTo(i)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                i === activeDot ? "w-6 bg-purple-500" : "w-2 bg-purple-200"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </section>
