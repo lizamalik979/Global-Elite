@@ -34,10 +34,12 @@ function BarChart(p: IconProps) {
   );
 }
 
-function Zap(p: IconProps) {
+function Bot(p: IconProps) {
   return (
     <svg {...stroke(p)}>
-      <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />
+      <path d="M12 8V4H8" />
+      <rect width="16" height="12" x="4" y="8" rx="2" />
+      <path d="M2 14h2M20 14h2M15 13v2M9 13v2" />
     </svg>
   );
 }
@@ -197,11 +199,11 @@ export default function Stats() {
 
             <div className="flex flex-col rounded-[22px] bg-[#181436] p-6 shadow-[0_18px_28px_rgba(24,20,54,0.4)] lg:h-[129px]">
               <span className="grid size-[38px] place-items-center rounded-[11px] bg-white/10">
-                <Zap className="size-[19px] text-white" />
+                <Bot className="size-[19px] text-white" />
               </span>
               <div className="mt-auto pt-4 leading-[1.2]">
-                <p className="text-[18px] font-bold text-white">Same-day</p>
-                <p className="text-[18px] font-bold text-gold">MEA Dispatch</p>
+                <p className="text-[18px] font-bold text-white">AI-automated</p>
+                <p className="text-[18px] font-bold text-gold">MEA dispatch</p>
               </div>
             </div>
           </div>

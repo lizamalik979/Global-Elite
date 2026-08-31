@@ -27,8 +27,8 @@ const fallbackPosts: Post[] = [
     href: "/blog",
   },
   {
-    tag: "Guide",
-    title: "How real-time tracking removes the anxiety from going abroad",
+    tag: "AI & Automation",
+    title: "How AI-powered tracking removes the anxiety from going abroad",
     href: "/blog",
   },
 ];
@@ -98,6 +98,9 @@ export default async function Insights() {
               Latest insights &amp;{" "}
               <span className="italic text-purple-500">trends</span>
             </h2>
+            <p className="mt-3 max-w-[440px] text-[15px] leading-[1.55] text-slate">
+              AI, automation and the playbook for taking your documents global.
+            </p>
           </div>
 
           <Link

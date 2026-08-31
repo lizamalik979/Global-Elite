@@ -125,7 +125,7 @@ const plans: Plan[] = [
     unit: "/ all-in",
     features: [
       "Direct Ministry desk submission",
-      "e-Apostille sticker tracking",
+      "AI-powered e-sticker tracking",
       "Universal 120-country validity",
     ],
     cta: "Start Application",
@@ -296,7 +296,7 @@ export default function Pricing() {
             <span className="italic text-purple-500">every journey</span>
           </h2>
           <p className="mx-auto mt-4 max-w-[560px] text-[16px] leading-[1.55] text-slate">
-            Transparent fixed pricing with colour-coded tracking at every
+            Transparent fixed pricing with AI-powered tracking at every
             checkpoint.
           </p>
 

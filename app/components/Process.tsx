@@ -148,8 +148,8 @@ export default function Process() {
             <span className="text-navy">process</span>
           </h2>
           <p className="mx-auto mt-4 max-w-[640px] text-[16px] leading-relaxed text-slate">
-            Three clear pathways — each listing exactly which attestations are
-            included.
+            Three clear pathways — each fully tracked on our AI platform, listing
+            exactly which attestations are included.
           </p>
         </div>
 

@@ -24,6 +24,28 @@ export const ChevronRight = (p: IconProps) => (
   </svg>
 );
 
+export const Sparkles = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M9.94 14.06A2 2 0 0 0 8.5 12.6l-5.9-1.52a.5.5 0 0 1 0-.96L8.5 8.6a2 2 0 0 0 1.44-1.44L11.46 1.26a.5.5 0 0 1 .96 0l1.52 5.9A2 2 0 0 0 15.4 8.6l5.9 1.52a.5.5 0 0 1 0 .96l-5.9 1.52a2 2 0 0 0-1.46 1.46l-1.52 5.9a.5.5 0 0 1-.96 0z" />
+    <path d="M20 3v4M22 5h-4M4 17v2M5 18H3" />
+  </svg>
+);
+
+export const Bot = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 8V4H8" />
+    <rect width="16" height="12" x="4" y="8" rx="2" />
+    <path d="M2 14h2M20 14h2M15 13v2M9 13v2" />
+  </svg>
+);
+
+export const BarChart = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+    <path d="M7 16v-4M12 16V8M17 16v-6" />
+  </svg>
+);
+
 export const ArrowRight = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M5 12h14" />

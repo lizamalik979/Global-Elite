@@ -4,28 +4,28 @@ import LeadPopupButton from "./LeadPopup";
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { ArrowRight, HeartHandshake, Headset, Truck, Wrench } from "./icons";
+import { ArrowRight, BarChart, Bot, Headset, Truck } from "./icons";
 
 const features: { icon: ReactNode; title: string; text: string }[] = [
   {
-    icon: <HeartHandshake className="size-7" />,
-    title: "Dedicated Support",
-    text: "A dedicated team works tirelessly to ensure every client query is promptly addressed and resolved.",
+    icon: <Bot className="size-7" />,
+    title: "Workflow Automation",
+    text: "AI auto-verifies each document, routes it to the right desk and follows up — zero manual chasing.",
   },
   {
-    icon: <Wrench className="size-7" />,
-    title: "Quality Services",
-    text: "We pride ourselves on delivering precise, compliant document services that earn lasting client loyalty.",
+    icon: <BarChart className="size-7" />,
+    title: "AI Status Tracking",
+    text: "A live dashboard streams every document's progress with instant AI status alerts at each checkpoint.",
   },
   {
     icon: <Headset className="size-7" />,
-    title: "24x7 Assistance",
-    text: "Our support team is available around the clock — reach out anytime and we'll move your case forward.",
+    title: "24x7 AI Support",
+    text: "AI assistants and a dedicated team resolve every query around the clock — reach out anytime.",
   },
   {
     icon: <Truck className="size-7" />,
-    title: "Free Pickup-Delivery",
-    text: "We offer free insured pickup and delivery for all clients across our New Delhi, Mumbai, Hyderabad & Vizag hubs.",
+    title: "Smart Pickup & Delivery",
+    text: "Free insured, auto-scheduled pickup and delivery across our New Delhi, Mumbai, Hyderabad & Vizag hubs.",
   },
 ];
 

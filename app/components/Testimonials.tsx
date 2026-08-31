@@ -71,7 +71,7 @@ const testimonials: Testimonial[] = [
   },
   {
     quote:
-      "Their team resolved a tricky Germany study-visa apostille, opening new paths and keeping me informed throughout.",
+      "Their AI tracking kept me updated at every step of a tricky Germany study-visa apostille — I always knew exactly where my file was.",
     name: "Priya Sharma",
     role: "MEA Apostille — Germany",
     photo: "/assets/client3.webp",
@@ -139,8 +139,8 @@ export default function Testimonials() {
               <span className="italic text-purple-500">about us</span>
             </h2>
             <p className="mt-4 text-[15.5px] leading-[1.55] text-slate">
-              Real cases, real destinations — here&apos;s how their legalization
-              went.
+              Real cases, real destinations — all managed on our AI platform.
+              Here&apos;s how their legalization went.
             </p>
           </div>
 

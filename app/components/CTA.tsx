@@ -52,13 +52,14 @@ export default function CTA() {
 
               {/* Heading */}
               <h2 className="mt-5 text-[clamp(30px,3.6vw,44px)] font-bold leading-[1.12] tracking-[-0.02em] text-white">
-                Save your time and money with Global Elite
+                Automate your global paperwork with Global Elite
               </h2>
 
               {/* Subtext */}
-              <p className="mt-4 max-w-[490px] text-[16px] font-medium leading-[1.55] text-[#e7dcf3]">
-                Get a fixed, all-inclusive quote and a dedicated agent on your
-                case — start in under two minutes.
+              <p className="mt-4 max-w-[500px] text-[16px] font-medium leading-[1.55] text-[#e7dcf3]">
+                Our AI platform delivers a fixed, all-inclusive quote, live
+                tracking and a dedicated agent on your case — start in under two
+                minutes.
               </p>
             </div>
 
