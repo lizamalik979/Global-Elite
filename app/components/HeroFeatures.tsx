@@ -9,23 +9,23 @@ import { ArrowRight, BarChart, Bot, Headset, Truck } from "./icons";
 const features: { icon: ReactNode; title: string; text: string }[] = [
   {
     icon: <Bot className="size-7" />,
-    title: "AI Automation",
-    text: "Intelligent workflows automate document checks, submission and follow-up — cutting turnaround end to end.",
+    title: "Workflow Automation",
+    text: "AI auto-verifies each document, routes it to the right desk and follows up — zero manual chasing.",
   },
   {
     icon: <BarChart className="size-7" />,
-    title: "Real-Time Tracking",
-    text: "A live dashboard follows every document with automatic status alerts at each checkpoint.",
+    title: "AI Status Tracking",
+    text: "A live dashboard streams every document's progress with instant AI status alerts at each checkpoint.",
   },
   {
     icon: <Headset className="size-7" />,
-    title: "24x7 Assistance",
+    title: "24x7 AI Support",
     text: "AI assistants and a dedicated team resolve every query around the clock — reach out anytime.",
   },
   {
     icon: <Truck className="size-7" />,
-    title: "Free Pickup-Delivery",
-    text: "We offer free insured pickup and delivery across our New Delhi, Mumbai, Hyderabad & Vizag hubs.",
+    title: "Smart Pickup & Delivery",
+    text: "Free insured, auto-scheduled pickup and delivery across our New Delhi, Mumbai, Hyderabad & Vizag hubs.",
   },
 ];
 

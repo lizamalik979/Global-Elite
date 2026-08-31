@@ -28,9 +28,9 @@ export default function Hero() {
             </div>
 
             <h1 className="mt-5 text-[clamp(30px,6.4vw,68px)] font-extrabold leading-[1.04] tracking-[-0.035em]">
-              <span className="text-white">AI-powered legalization</span>
+              <span className="text-white">The AI SaaS platform</span>
               <br />
-              <span className="text-white/55">for the entire world</span>
+              <span className="text-white/55">for legalization worldwide</span>
             </h1>
 
             <p className="mx-auto mt-6 max-w-[600px] text-[17px] font-medium leading-relaxed text-white/90">
