@@ -21,9 +21,9 @@ export default function Home() {
       <Pricing />
       <Departments />
       <Process />
+      <CTA />
       <Testimonials />
       <Insights />
-      <CTA />
     </main>
   );
 }

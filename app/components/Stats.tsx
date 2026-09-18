@@ -1,100 +1,22 @@
-import Image from "next/image";
-import type { SVGProps } from "react";
+import {
+  Clock,
+  Mail,
+  MessageCircle,
+  Phone,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
 
-type IconProps = SVGProps<SVGSVGElement>;
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const stroke = (props: IconProps) => ({
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 1.8,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-  ...props,
-});
-
-function Globe(p: IconProps) {
-  return (
-    <svg {...stroke(p)}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18" />
-      <path d="M12 3c2.5 2.4 3.8 5.6 3.8 9s-1.3 6.6-3.8 9c-2.5-2.4-3.8-5.6-3.8-9S9.5 5.4 12 3Z" />
-    </svg>
-  );
-}
-
-function BarChart(p: IconProps) {
-  return (
-    <svg {...stroke(p)}>
-      <path d="M4 20V10" />
-      <path d="M10 20V4" />
-      <path d="M16 20v-7" />
-      <path d="M22 20H2" />
-    </svg>
-  );
-}
-
-function Bot(p: IconProps) {
-  return (
-    <svg {...stroke(p)}>
-      <path d="M12 8V4H8" />
-      <rect width="16" height="12" x="4" y="8" rx="2" />
-      <path d="M2 14h2M20 14h2M15 13v2M9 13v2" />
-    </svg>
-  );
-}
-
-function Star(p: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...p}>
-      <path d="M12 2.5l2.7 5.9 6.4.6-4.8 4.3 1.4 6.3L12 16.9 6.3 19.6l1.4-6.3L2.9 9l6.4-.6L12 2.5Z" />
-    </svg>
-  );
-}
-
-// Client-photo / NRI avatars used by the stat cards.
-const WORLDWIDE_AVATARS = [
-  "/assets/nri.svg",
-  "/assets/nri1.svg",
-  "/assets/nri2.svg",
+// Ascending "growth" bars for the Scalable card: [height px, colour class]
+const GROWTH_BARS: [number, string][] = [
+  [10, "bg-white/25"],
+  [16, "bg-white/35"],
+  [22, "bg-white/45"],
+  [28, "bg-gold"],
+  [34, "bg-gold"],
 ];
-const CLIENT_AVATARS = [
-  "/assets/client1.webp",
-  "/assets/client2.webp",
-  "/assets/client3.webp",
-  "/assets/client4.webp",
-];
-
-function Avatars({
-  images,
-  bordered = true,
-}: {
-  images: string[];
-  /** Set false when the image already includes its own ring (e.g. nri.svg) */
-  bordered?: boolean;
-}) {
-  return (
-    <div className="flex">
-      {images.map((src, i) => (
-        <span
-          key={src}
-          className={`relative size-[30px] shrink-0 overflow-hidden rounded-full bg-purple-50 ${
-            bordered ? "border-2 border-white" : ""
-          } ${i > 0 ? "-ml-[10px]" : ""}`}
-        >
-          <Image
-            src={src}
-            alt=""
-            fill
-            sizes="30px"
-            unoptimized={src.endsWith(".svg")}
-            className="object-cover"
-          />
-        </span>
-      ))}
-    </div>
-  );
-}
 
 export default function Stats() {
   return (
@@ -103,18 +25,20 @@ export default function Stats() {
         {/* Heading */}
         <div className="mx-auto max-w-[760px] text-center">
           <p className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-purple-500">
-            • Why Global Elite
+            • Trust and Performance
           </p>
           <h2 className="mt-4 text-[28px] font-bold leading-[1.14] tracking-[-0.015em] text-navy sm:text-[34px] lg:text-[42px]">
-            An MEA-registered partner{" "}
-            <span className="italic text-purple-500">legalizing</span> documents
-            for the entire world
+            Intelligent automation designed for measurable growth
           </h2>
+          <p className="mx-auto mt-4 max-w-[600px] text-[15.5px] font-medium leading-relaxed text-slate">
+            Bring customer conversations, business data and operational
+            workflows together in one intelligent platform.
+          </p>
         </div>
 
         {/* Cards */}
         <div className="mt-12 flex flex-col gap-[18px] lg:grid lg:h-[300px] lg:grid-cols-[351fr_443fr_351fr]">
-          {/* Card 1 — navy "120+" */}
+          {/* Card 1 — navy "24/7" */}
           <div
             className="flex h-full flex-col justify-between gap-8 overflow-hidden rounded-[22px] p-[26px] text-white shadow-[0_22px_30px_rgba(22,38,92,0.35)]"
             style={{
@@ -124,86 +48,131 @@ export default function Stats() {
           >
             <div className="flex items-start justify-between">
               <span className="grid size-10 place-items-center rounded-[11px] bg-white/[0.12]">
-                <Globe className="size-[21px]" />
+                <Clock className="size-[21px]" strokeWidth={1.8} />
               </span>
-              <BarChart className="size-[18px] text-white/60" />
+              <span className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[#b9c4e0]">
+                <span className="size-1.5 rounded-full bg-[#3ddc84]" />
+                Always on
+              </span>
             </div>
 
             <div>
               <p className="text-[50px] font-bold leading-none tracking-[-0.02em]">
-                120+
+                24/7
               </p>
               <p className="mt-3 text-[13.5px] font-medium leading-[1.5] text-[#b9c4e0]">
-                Countries served with apostille &amp; consular attestation.
+                Automated customer engagement without business-hour
+                limitations.
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Avatars images={WORLDWIDE_AVATARS} bordered={false} />
-              <span className="text-[11.5px] font-semibold text-[#9fb0d6]">
-                Trusted worldwide
-              </span>
-            </div>
-          </div>
-
-          {/* Card 2 — white "99.7%" */}
-          <div className="flex h-full flex-col rounded-[22px] border border-purple-100 bg-white p-[26px] shadow-[0_16px_28px_rgba(22,38,92,0.12)]">
-            <p className="text-[12px] font-bold tracking-[0.04em] text-slate-light">
-              Client satisfaction
-            </p>
-            <div className="mt-2 flex items-center gap-3">
-              <span className="text-[50px] font-bold leading-none tracking-[-0.02em] text-navy">
-                99.7%
-              </span>
-              <div className="mt-2 flex gap-[2px] text-gold">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="size-[15px]" />
+            {/* Mon–Sun activity bars */}
+            <div>
+              <div className="flex gap-1.5">
+                {DAYS.map((d) => (
+                  <span key={d} className="h-[5px] flex-1 rounded-full bg-gold" />
                 ))}
               </div>
+              <div className="mt-1.5 flex justify-between text-[10.5px] font-semibold text-[#9fb0d6]">
+                <span>Mon</span>
+                <span>Sun</span>
+              </div>
             </div>
+          </div>
 
-            <div className="mt-[18px] h-px w-full bg-[#f1ebf7]" />
-
-            <div className="mt-[18px] flex items-center gap-4">
-              <Avatars images={CLIENT_AVATARS} />
+          {/* Card 2 — white "Faster Response" */}
+          <div className="flex h-full flex-col rounded-[22px] border border-purple-100 bg-white p-[26px] shadow-[0_16px_28px_rgba(22,38,92,0.12)]">
+            <div className="flex items-start justify-between">
+              <span className="grid size-10 place-items-center rounded-[11px] bg-gradient-to-br from-purple-50 to-[#efe1f8] text-purple-500">
+                <Zap className="size-[19px]" strokeWidth={1.8} />
+              </span>
               <span className="text-[11.5px] font-semibold text-slate-light">
-                25,000+ verified cases
+                Avg. first response
               </span>
             </div>
 
-            <p className="mt-auto pt-[30px] text-[14.5px] font-medium leading-[1.55] text-[#33536b]">
-              &ldquo;The whole legalization was transparent, fully tracked and
-              finished ahead of schedule. Exactly what we needed.&rdquo;
+            <h3 className="mt-5 text-[24px] font-bold leading-none tracking-[-0.015em] text-navy">
+              Faster Response
+            </h3>
+            <p className="mt-2.5 text-[13.5px] font-medium leading-[1.5] text-slate">
+              Respond to new leads and customer enquiries in seconds.
             </p>
+
+            {/* Comparison bars */}
+            <div className="mt-auto space-y-3 pt-5">
+              <div>
+                <div className="flex items-center justify-between text-[11.5px]">
+                  <span className="font-semibold text-slate-light">
+                    Manual follow-up
+                  </span>
+                  <span className="font-bold text-navy">4–6 hrs</span>
+                </div>
+                <div className="mt-1.5 h-[5px] w-full rounded-full bg-[#e6e8ef]" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-[11.5px]">
+                  <span className="font-semibold text-slate-light">
+                    With Global Elite AI
+                  </span>
+                  <span className="font-bold text-purple-500">&lt; 10 sec</span>
+                </div>
+                <div className="mt-1.5 h-[5px] w-full rounded-full bg-[#e6e8ef]">
+                  <div className="gradient-cta h-full w-[6%] min-w-[14px] rounded-full" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Column 3 — orange "25K+" + dark "Same-day" */}
+          {/* Column 3 — orange "Multi-Channel" + dark "Scalable" */}
           <div className="flex h-full flex-col gap-[18px]">
             <div
-              className="flex flex-col rounded-[22px] p-6 shadow-[0_18px_28px_rgba(224,139,46,0.32)] lg:h-[153px]"
+              className="flex flex-col rounded-[22px] p-6 shadow-[0_18px_28px_rgba(224,139,46,0.32)] lg:h-[122px]"
               style={{
                 backgroundImage:
                   "linear-gradient(135deg,#f4bd54 0%,#ec9a3a 55%,#e0872c 100%)",
               }}
             >
-              <p className="text-[12px] font-bold tracking-[0.04em] text-[rgba(34,18,4,0.65)]">
-                Documents legalized
-              </p>
-              <p className="mt-1.5 text-[42px] font-bold leading-none tracking-[-0.02em] text-[#221204]">
-                25K+
-              </p>
-              <p className="mt-auto pt-4 text-[12.5px] font-semibold text-[rgba(34,18,4,0.7)]">
-                Processed for clients across the globe.
+              <div className="flex items-center justify-between">
+                <p className="text-[20px] font-bold leading-none tracking-[-0.01em] text-[#221204]">
+                  Multi-Channel
+                </p>
+                <div className="flex gap-1.5 text-[#221204]">
+                  {[MessageCircle, Phone, Mail].map((Icon, i) => (
+                    <span
+                      key={i}
+                      className="grid size-7 place-items-center rounded-lg bg-white/35"
+                    >
+                      <Icon className="size-[14px]" strokeWidth={2} />
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <p className="mt-auto pt-4 text-[12.5px] font-semibold leading-[1.45] text-[rgba(34,18,4,0.7)]">
+                Connect WhatsApp, voice, web forms, email and CRM workflows.
               </p>
             </div>
 
-            <div className="flex flex-col rounded-[22px] bg-[#181436] p-6 shadow-[0_18px_28px_rgba(24,20,54,0.4)] lg:h-[129px]">
-              <span className="grid size-[38px] place-items-center rounded-[11px] bg-white/10">
-                <Bot className="size-[19px] text-white" />
-              </span>
-              <div className="mt-auto pt-4 leading-[1.2]">
-                <p className="text-[18px] font-bold text-white">AI-automated</p>
-                <p className="text-[18px] font-bold text-gold">MEA dispatch</p>
+            <div className="flex flex-col rounded-[22px] bg-[#181436] p-6 shadow-[0_18px_28px_rgba(24,20,54,0.4)] lg:flex-1">
+              <div className="flex items-start justify-between">
+                <span className="grid size-[38px] place-items-center rounded-[11px] bg-white/10">
+                  <TrendingUp className="size-[19px] text-white" strokeWidth={1.8} />
+                </span>
+                <div className="flex items-end gap-1" aria-hidden="true">
+                  {GROWTH_BARS.map(([h, color], i) => (
+                    <span
+                      key={i}
+                      className={`w-[5px] rounded-full ${color}`}
+                      style={{ height: h }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="mt-auto pt-3 leading-[1.25]">
+                <p className="text-[18px] font-bold text-white">Scalable</p>
+                <p className="text-[12px] font-medium text-[#b9c4e0]">
+                  Handle growing conversation volumes without expanding
+                  repetitive manual work.
+                </p>
               </div>
             </div>
           </div>

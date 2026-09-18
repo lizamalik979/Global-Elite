@@ -1,99 +1,18 @@
-import LeadPopupButton, { DOCUMENT_SERVICES } from "./LeadPopup";
-import type { ReactNode, SVGProps } from "react";
+"use client";
 
-/* ---------- lucide-style inline icons ---------- */
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import { Building2, Check, Sprout, TrendingUp } from "lucide-react";
+import LeadPopupButton, { DIVISION_SERVICES } from "./LeadPopup";
 
-function Check(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={3}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
-}
-
-function ArrowUpRight(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.25}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M7 7h10v10" />
-      <path d="M7 17 17 7" />
-    </svg>
-  );
-}
-
-function FileCheck(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
-      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-      <path d="m9 15 2 2 4-4" />
-    </svg>
-  );
-}
-
-function Stamp(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M5 22h14" />
-      <path d="M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z" />
-      <path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-6 0c0 2 1 2 1 3.5V13" />
-    </svg>
-  );
-}
-
-function Building(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <rect width="16" height="20" x="4" y="2" rx="2" />
-      <path d="M9 22v-4h6v4" />
-      <path d="M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01" />
-    </svg>
-  );
-}
+// Mobile slider: advance to the next plan every 4s until the visitor touches it
+const AUTOPLAY_MS = 4000;
+const MOBILE_QUERY = "(max-width: 1023px)";
 
 /* ---------- data ---------- */
 
 type Plan = {
-  icon: ReactNode;
+  icon: LucideIcon;
   label: string;
   desc: string;
   price: string;
@@ -105,53 +24,58 @@ type Plan = {
 
 const plans: Plan[] = [
   {
-    icon: <FileCheck className="size-[18px]" />,
-    label: "STATE PRE-VERIFICATION",
-    desc: "For documents needing HRD / SDM clearance before central attestation.",
+    icon: Sprout,
+    label: "AI Starter",
+    desc: "For businesses beginning their automation journey.",
     price: "₹1,850",
     unit: "/ base",
     features: [
-      "Personal & educational validation",
-      "Regional hub & Home Dept routing",
-      "Secure domestic collection",
+      "One primary AI use case",
+      "Basic workflow setup",
+      "Website or WhatsApp integration",
+      "Standard reporting",
+      "Initial team training",
     ],
-    cta: "Select Track",
+    cta: "Start with AI",
   },
   {
-    icon: <Stamp className="size-[19px]" />,
-    label: "MEA APOSTILLE",
-    desc: "All-inclusive Hague apostille — the complete door-to-ministry package.",
+    icon: TrendingUp,
+    label: "AI Growth",
+    desc: "For businesses ready to automate sales and customer engagement.",
     price: "₹3,450",
     unit: "/ all-in",
     features: [
-      "Direct Ministry desk submission",
-      "AI-powered e-sticker tracking",
-      "Universal 120-country validity",
+      "Multiple AI workflows",
+      "WhatsApp and CRM integration",
+      "Lead qualification automation",
+      "Automated follow-up journeys",
+      "Performance dashboard",
+      "Ongoing optimisation",
     ],
-    cta: "Start Application",
+    cta: "Choose Growth",
     highlighted: true,
   },
   {
-    icon: <Building className="size-[18px]" />,
-    label: "EMBASSY ATTESTATION",
-    desc: "For non-Hague destinations requiring consular legalization.",
-    price: "₹4,250",
-    unit: "+ actuals",
+    icon: Building2,
+    label: "AI Enterprise",
+    desc: "For organisations requiring advanced, scalable automation.",
+    price: "₹1,850",
+    unit: "/ base",
     features: [
-      "Non-Hague (UAE, Saudi, Qatar)",
-      "Chamber of Commerce verification",
-      "Embassy desk courier tracking",
+      "Custom AI agents",
+      "Voice, WhatsApp and omnichannel automation",
+      "Advanced system integrations",
+      "Custom analytics and reporting",
+      "Security and governance configuration",
+      "Dedicated implementation support",
     ],
-    cta: "Select Track",
+    cta: "Talk to an Expert",
   },
 ];
 
-/* Map each plan to its "Service Required" dropdown option */
-const PLAN_SERVICE: Record<string, string> = {
-  "STATE PRE-VERIFICATION": "State Pre-Verification (HRD / SDM)",
-  "MEA APOSTILLE": "MEA Apostille",
-  "EMBASSY ATTESTATION": "Embassy Attestation",
-};
+// Every plan preselects the AI & Technology division in the lead popup
+const AI_TECH_SERVICE =
+  "AI & Technology Solutions — AI training, automation, analytics";
 
 /* ---------- cards ---------- */
 
@@ -161,9 +85,9 @@ function PlainCard({ plan }: { plan: Plan }) {
       {/* header */}
       <div className="flex items-center gap-3">
         <span className="grid size-[34px] place-items-center rounded-[9px] bg-purple-50 text-purple-500">
-          {plan.icon}
+          <plan.icon className="size-[18px]" strokeWidth={2} />
         </span>
-        <span className="text-[11.5px] font-bold uppercase tracking-[0.92px] text-purple-500">
+        <span className="text-[17px] font-bold tracking-[0.2px] text-purple-500">
           {plan.label}
         </span>
       </div>
@@ -191,7 +115,7 @@ function PlainCard({ plan }: { plan: Plan }) {
         {plan.features.map((f) => (
           <li key={f} className="flex items-center gap-[10px]">
             <span className="grid size-5 shrink-0 place-items-center rounded-full bg-purple-50 text-purple-500">
-              <Check className="size-3" />
+              <Check className="size-3" strokeWidth={3} />
             </span>
             <span className="text-[13.5px] leading-[1.4] text-[#33536b]">
               {f}
@@ -203,8 +127,8 @@ function PlainCard({ plan }: { plan: Plan }) {
       {/* cta */}
       <LeadPopupButton
         source={`Home page — Pricing: ${plan.label}`}
-        services={DOCUMENT_SERVICES}
-        defaultService={PLAN_SERVICE[plan.label]}
+        services={DIVISION_SERVICES}
+        defaultService={AI_TECH_SERVICE}
         className="mt-6 flex h-[46.5px] items-center justify-center rounded-[12px] border-[1.5px] border-purple-500 text-[14px] font-bold text-purple-500 transition-colors hover:bg-purple-50"
       >
         {plan.cta}
@@ -230,9 +154,9 @@ function HighlightedCard({ plan }: { plan: Plan }) {
       {/* header */}
       <div className="flex items-center gap-3 px-[18px] pb-3 pt-[18px]">
         <span className="grid size-[35px] place-items-center rounded-[9px] bg-white/[0.16] text-white">
-          {plan.icon}
+          <plan.icon className="size-[18px]" strokeWidth={2} />
         </span>
-        <span className="text-[11.5px] font-bold uppercase tracking-[0.92px] text-[#f2c66a]">
+        <span className="text-[17px] font-bold tracking-[0.2px] text-[#f2c66a]">
           {plan.label}
         </span>
       </div>
@@ -258,7 +182,7 @@ function HighlightedCard({ plan }: { plan: Plan }) {
           {plan.features.map((f) => (
             <li key={f} className="flex items-center gap-[10px]">
               <span className="grid size-[20.8px] shrink-0 place-items-center rounded-full bg-white/[0.18] text-white">
-                <Check className="size-3" />
+                <Check className="size-3" strokeWidth={3} />
               </span>
               <span className="text-[13.5px] leading-[1.4] text-[#fbf3ff]">
                 {f}
@@ -269,8 +193,8 @@ function HighlightedCard({ plan }: { plan: Plan }) {
 
         <LeadPopupButton
           source={`Home page — Pricing: ${plan.label}`}
-          services={DOCUMENT_SERVICES}
-          defaultService={PLAN_SERVICE[plan.label]}
+          services={DIVISION_SERVICES}
+          defaultService={AI_TECH_SERVICE}
           className="mt-6 flex h-[47px] w-full items-center justify-center rounded-[12px] bg-white text-[14px] font-bold text-purple-500 shadow-[0_12px_11px_rgba(0,0,0,0.3)] transition-colors hover:bg-purple-50"
         >
           {plan.cta}
@@ -283,6 +207,55 @@ function HighlightedCard({ plan }: { plan: Plan }) {
 /* ---------- section ---------- */
 
 export default function Pricing() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [activeDot, setActiveDot] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  // Mobile slider only: track which card is centred so the dots stay in sync.
+  const onScroll = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    const cards = Array.from(el.children) as HTMLElement[];
+    const center = el.scrollLeft + el.clientWidth / 2;
+    let closest = 0;
+    let min = Infinity;
+    cards.forEach((c, i) => {
+      const cardCenter = c.offsetLeft + c.offsetWidth / 2;
+      const d = Math.abs(cardCenter - center);
+      if (d < min) {
+        min = d;
+        closest = i;
+      }
+    });
+    setActiveDot(closest);
+  };
+
+  useEffect(() => {
+    onScroll();
+  }, []);
+
+  const goTo = useCallback((i: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const card = el.children[i] as HTMLElement | undefined;
+    if (card) {
+      el.scrollTo({ left: card.offsetLeft, behavior: "smooth" });
+    }
+  }, []);
+
+  // Auto-advance on mobile; stops for good once the visitor interacts.
+  useEffect(() => {
+    if (paused) return;
+    const mq = window.matchMedia(MOBILE_QUERY);
+    if (!mq.matches) return;
+    const id = setInterval(() => {
+      goTo((activeDot + 1) % plans.length);
+    }, AUTOPLAY_MS);
+    return () => clearInterval(id);
+  }, [activeDot, paused, goTo]);
+
+  const stopAutoplay = () => setPaused(true);
+
   return (
     <section className="bg-[#f6f4fb] py-16 md:py-24">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-10">
@@ -292,37 +265,54 @@ export default function Pricing() {
             <span className="mr-1.5">•</span>PRICING
           </p>
           <h2 className="mt-3 text-[clamp(30px,4vw,42px)] font-bold leading-[1.12] tracking-[-0.02em] text-navy">
-            Flexible plans built for{" "}
-            <span className="italic text-purple-500">every journey</span>
+            Flexible engagement models built for every growth stage
           </h2>
           <p className="mx-auto mt-4 max-w-[560px] text-[16px] leading-[1.55] text-slate">
-            Transparent fixed pricing with AI-powered tracking at every
+            Transparent fixed pricing with colour-coded tracking at every
             checkpoint.
           </p>
-
-          <div className="mt-7 flex justify-center">
-            <LeadPopupButton
-              source="Home page — Pricing section Get Started"
-              services={DOCUMENT_SERVICES}
-              className="gradient-cta inline-flex items-center gap-3 rounded-full py-[6px] pl-6 pr-[6px] text-[13.5px] font-bold tracking-[0.27px] text-white shadow-[0_12px_13px_rgba(142,79,160,0.5)]"
-            >
-              GET STARTED
-              <span className="grid size-[30px] place-items-center rounded-full bg-navy text-white">
-                <ArrowUpRight className="size-4" />
-              </span>
-            </LeadPopupButton>
-          </div>
         </div>
 
-        {/* cards */}
-        <div className="mx-auto mt-14 grid max-w-[1180px] grid-cols-1 items-center gap-6 lg:grid-cols-3">
-          {plans.map((plan) =>
-            plan.highlighted ? (
-              <HighlightedCard key={plan.label} plan={plan} />
-            ) : (
-              <PlainCard key={plan.label} plan={plan} />
-            ),
-          )}
+        {/* cards — snap-slider on mobile/tablet, 3-col grid from lg.
+            pt-4 keeps the "Most Popular" badge inside the scroll box. */}
+        <div
+          ref={trackRef}
+          onScroll={onScroll}
+          onTouchStart={stopAutoplay}
+          onPointerDown={stopAutoplay}
+          className="mx-auto mt-10 flex max-w-[1180px] snap-x snap-mandatory gap-6 overflow-x-auto pb-2 pt-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:grid lg:snap-none lg:grid-cols-3 lg:items-center lg:overflow-visible lg:pb-0"
+        >
+          {plans.map((plan) => (
+            <div
+              key={plan.label}
+              className="w-[86%] shrink-0 snap-center lg:w-auto lg:shrink"
+            >
+              {plan.highlighted ? (
+                <HighlightedCard plan={plan} />
+              ) : (
+                <PlainCard plan={plan} />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* dots — mobile/tablet only */}
+        <div className="mt-6 flex items-center justify-center gap-2 lg:hidden">
+          {plans.map((plan, i) => (
+            <button
+              key={plan.label}
+              type="button"
+              aria-label={`Go to ${plan.label}`}
+              aria-current={i === activeDot}
+              onClick={() => {
+                stopAutoplay();
+                goTo(i);
+              }}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                i === activeDot ? "w-6 bg-purple-500" : "w-2 bg-purple-200"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </section>
