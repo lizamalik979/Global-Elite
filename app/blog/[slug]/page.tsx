@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BlogDetail from "../../components/blogdetail";
 import { buildToc, getAllPosts, getPost, toPostCard } from "../../lib/cms";
+import JsonLd from "../../components/JsonLd";
+import { blogPostingSchema } from "../../lib/schema";
 
 // Blog article page, rendered from the CMS post (content, TOC from its h2
 // headings, FAQ items, related posts by category).
@@ -34,13 +36,26 @@ export default async function BlogArticle({ params }: Props) {
   ].slice(0, 3);
 
   return (
-    <BlogDetail
-      entry={toPostCard(post, true)}
-      contentHtml={html}
-      toc={toc}
-      faqs={post.faq_items}
-      related={related.map((p) => toPostCard(p))}
-      featuredImage={post.featuredImage}
-    />
+    <>
+      <JsonLd
+        data={blogPostingSchema({
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt,
+          image: post.featuredImage,
+          author: post.author?.username || "Global Elite",
+          publishedAt: post.publishedAt ?? post.createdAt,
+          faqs: post.faq_items,
+        })}
+      />
+      <BlogDetail
+        entry={toPostCard(post, true)}
+        contentHtml={html}
+        toc={toc}
+        faqs={post.faq_items}
+        related={related.map((p) => toPostCard(p))}
+        featuredImage={post.featuredImage}
+      />
+    </>
   );
 }

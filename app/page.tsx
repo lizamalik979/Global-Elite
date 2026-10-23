@@ -1,3 +1,5 @@
+import { SITE_DESCRIPTION, SITE_TITLE } from "./layout";
+import { homePageSchema } from "./lib/schema";
 import Hero from "./components/Hero";
 import Stats from "./components/Stats";
 import Services from "./components/Services";
@@ -13,6 +15,13 @@ import CTA from "./components/CTA";
 export default function Home() {
   return (
     <main className="overflow-x-hidden">
+      {/* Structured data — Organization, WebSite, WebPage and the six services */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(homePageSchema(SITE_TITLE, SITE_DESCRIPTION)),
+        }}
+      />
       <Hero />
       <Stats />
       <Services />
