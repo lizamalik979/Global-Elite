@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import AboutPage from "../components/aboutpage";
 import { ABOUT_META, normalizeAboutContent } from "../components/aboutpage/data";
 import { getAboutPage } from "../lib/cms";
+import JsonLd from "../components/JsonLd";
+import { aboutPageSchema } from "../lib/schema";
 
 // Content is managed in the CMS (Dashboard → About Us). The built-in fallback
 // renders when the CMS is unreachable or the page hasn't been saved yet, and
@@ -18,5 +20,23 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function About() {
   const page = await getAboutPage();
-  return <AboutPage content={normalizeAboutContent(page?.content)} />;
+  const content = normalizeAboutContent(page?.content);
+  return (
+    <>
+      <JsonLd
+        data={aboutPageSchema({
+          title: page?.metaTitle || ABOUT_META.title,
+          description: page?.metaDescription || ABOUT_META.description,
+          team: (content.team?.members ?? []).map((m) => ({
+            name: m.name,
+            role: m.role,
+          })),
+          founder: content.founder?.name
+            ? { name: content.founder.name, role: content.founder.role }
+            : null,
+        })}
+      />
+      <AboutPage content={content} />
+    </>
+  );
 }

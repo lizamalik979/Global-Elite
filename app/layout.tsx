@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Plus_Jakarta_Sans, Inter, Playfair_Display } from "next/font/google";
+import { SITE_URL } from "./lib/sitemap-utils";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -39,10 +40,44 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+export const SITE_TITLE =
+  "Connecting Global Opportunities with AI-Powered Innovation";
+export const SITE_DESCRIPTION =
+  "Empowering businesses with AI automation, SaaS, digital marketing, consulting, travel services, and apostille assistance to connect with global opportunities.";
+
 export const metadata: Metadata = {
-  title: "Global Elite — Legalizing your documents for the entire world",
-  description:
-    "We apostille, attest and translate your certificates — MEA-registered, fully tracked, and delivered to 120+ countries.",
+  // Makes every relative OG/canonical URL absolute
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  // Index everything and allow full-size image/snippet previews — required for
+  // the article and FAQ rich results to show thumbnails.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  // Shared link preview (WhatsApp, LinkedIn, X, Slack, Facebook)
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    siteName: "Global Elite",
+    type: "website",
+    url: "/",
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

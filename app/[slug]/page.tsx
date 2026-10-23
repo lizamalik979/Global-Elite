@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPackagesForPage, getServicePage } from "../lib/cms";
 import CmsServiceLayout from "../components/divisions/CmsServiceLayout";
+import JsonLd from "../components/JsonLd";
+import { servicePageSchema } from "../lib/schema";
 
 // Catch-all for CMS-managed service/division pages: any page published in the
 // CMS is served at /<slug> without touching frontend code. Static routes
@@ -28,5 +30,24 @@ export default async function CmsServicePage({ params }: Props) {
     getPackagesForPage(slug),
   ]);
   if (!page) notFound();
-  return <CmsServiceLayout content={page.content} slug={slug} packages={packages} />;
+
+  // FAQ block (when the page has one) drives the FAQ rich result
+  const faqs = page.content.sections.flatMap((sec) =>
+    sec.kind === "faq" ? sec.faqs : [],
+  );
+
+  return (
+    <>
+      <JsonLd
+        data={servicePageSchema({
+          slug,
+          title: page.metaTitle || `${page.content.badge} — Global Elite`,
+          description: page.metaDescription || page.content.subtitle,
+          badge: page.content.badge,
+          faqs,
+        })}
+      />
+      <CmsServiceLayout content={page.content} slug={slug} packages={packages} />
+    </>
+  );
 }
