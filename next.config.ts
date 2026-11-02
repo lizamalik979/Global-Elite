@@ -18,6 +18,13 @@ try {
 const apexHost = canonicalHost?.replace(/^www\./, "");
 
 const nextConfig: NextConfig = {
+  // Hostinger's container reports the host machine's full CPU count (63), so
+  // Next tries to spawn 63 build workers and hits the container's thread limit
+  // ("OS can't spawn worker thread: Resource temporarily unavailable").
+  // Pin it to the cores the plan actually provides.
+  experimental: {
+    cpus: 2,
+  },
   async redirects() {
     // Only redirect when the canonical host is a www host and the apex differs.
     // `has: host` matches the hostname exactly, so www can never match itself —
